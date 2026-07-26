@@ -1,0 +1,121 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.app-layout {
+  min-height: 100vh;
+}
+
+:host ::ng-deep .app-sidebar {
+  background: #151a23;
+  border-right: 1px solid #273244;
+  color: var(--app-text);
+  width: 17rem;
+}
+
+:host ::ng-deep .app-sidebar .p-sidebar-header,
+:host ::ng-deep .app-sidebar .p-sidebar-content,
+:host ::ng-deep .app-sidebar .p-sidebar-footer {
+  padding: 1rem;
+}
+
+.sidebar-brand {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.brand-mark {
+  align-items: center;
+  background: rgba(34, 211, 238, 0.14);
+  border: 1px solid rgba(34, 211, 238, 0.32);
+  border-radius: 8px;
+  color: #22d3ee;
+  display: inline-flex;
+  height: 2.5rem;
+  justify-content: center;
+  width: 2.5rem;
+}
+
+.sidebar-brand strong,
+.sidebar-brand span:not(.brand-mark) {
+  display: block;
+}
+
+.sidebar-brand strong {
+  color: #f8fafc;
+  font-size: 0.98rem;
+}
+
+.sidebar-brand div > span {
+  color: var(--app-muted);
+  font-size: 0.82rem;
+  margin-top: 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 11rem;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sidebar-nav a,
+.logout-button {
+  align-items: center;
+  border-radius: 8px;
+  color: #cbd5e1;
+  display: flex;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.75rem;
+  text-decoration: none;
+  transition: background-color 0.16s ease, color 0.16s ease;
+  width: 100%;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active,
+.logout-button:hover {
+  background: rgba(34, 211, 238, 0.12);
+  color: #f8fafc;
+}
+
+.sidebar-nav a.active {
+  box-shadow: inset 3px 0 0 var(--app-accent);
+}
+
+.logout-button {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.layout-content {
+  min-height: 100vh;
+  padding-left: 17rem;
+}
+
+.mobile-menu-button {
+  display: none;
+  left: 1rem;
+  position: fixed;
+  top: 1rem;
+  z-index: 1101;
+}
+
+@media (max-width: 899px) {
+  .layout-content {
+    padding-left: 0;
+  }
+
+  .mobile-menu-button {
+    display: block;
+  }
+}

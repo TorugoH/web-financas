@@ -3,6 +3,7 @@
     *ngFor="let mes of meses; trackBy: trackByPeriodo"
     [class.current-card]="mes.atual"
     [mes]="mes"
-    (selected)="monthSelected.emit($event)"
+    (view)="viewMonth.emit($event)"
+    (edit)="editMonth.emit($event)"
   />
 </div>

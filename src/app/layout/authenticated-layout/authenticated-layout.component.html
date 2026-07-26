@@ -1,0 +1,51 @@
+<div class="app-layout">
+  <p-button
+    class="mobile-menu-button"
+    icon="pi pi-bars"
+    [rounded]="true"
+    [text]="true"
+    ariaLabel="Abrir menu"
+    (onClick)="toggleSidebar()"
+  />
+
+  <p-sidebar
+    [(visible)]="sidebarVisible"
+    [modal]="isMobile"
+    [dismissible]="isMobile"
+    [showCloseIcon]="isMobile"
+    [blockScroll]="isMobile"
+    styleClass="app-sidebar"
+  >
+    <ng-template pTemplate="header">
+      <div class="sidebar-brand">
+        <span class="brand-mark"><i class="pi pi-wallet"></i></span>
+        <div>
+          <strong>Controle de Gastos</strong>
+          <span>{{ user()?.nome || 'Usuario' }}</span>
+        </div>
+      </div>
+    </ng-template>
+
+    <nav class="sidebar-nav" aria-label="Navegacao principal">
+      <a routerLink="/rendas" routerLinkActive="active" (click)="closeMobileSidebar()">
+        <i class="pi pi-chart-line"></i>
+        <span>Rendas</span>
+      </a>
+      <a routerLink="/perfil" routerLinkActive="active" (click)="closeMobileSidebar()">
+        <i class="pi pi-user"></i>
+        <span>Perfil</span>
+      </a>
+    </nav>
+
+    <ng-template pTemplate="footer">
+      <button type="button" class="logout-button" (click)="logout()">
+        <i class="pi pi-sign-out"></i>
+        <span>Sair</span>
+      </button>
+    </ng-template>
+  </p-sidebar>
+
+  <main class="layout-content">
+    <router-outlet />
+  </main>
+</div>

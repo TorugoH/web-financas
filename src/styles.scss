@@ -1,16 +1,16 @@
-@import 'primeng/resources/themes/aura-light-blue/theme.css';
+@import 'primeng/resources/themes/aura-dark-blue/theme.css';
 @import 'primeng/resources/primeng.css';
 @import 'primeicons/primeicons.css';
 @import 'primeflex/primeflex.css';
 
 :root {
-  color-scheme: light;
-  --app-bg: #f5f7fb;
-  --app-surface: #ffffff;
-  --app-text: #172033;
-  --app-muted: #64748b;
-  --app-border: #d9e2ef;
-  --app-accent: #0f9f8f;
+  color-scheme: dark;
+  --app-bg: #0f131a;
+  --app-surface: #1a202b;
+  --app-text: #e5e7eb;
+  --app-muted: #9ca3af;
+  --app-border: #2d3748;
+  --app-accent: #22d3ee;
 }
 
 * {
@@ -34,7 +34,7 @@ a {
 }
 
 .field-error {
-  color: #b42318;
+  color: #fca5a5;
   display: block;
   font-size: 0.82rem;
   line-height: 1.25;
@@ -53,7 +53,7 @@ a {
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: 8px;
-  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.09);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.36);
   max-width: 430px;
   padding: clamp(1.25rem, 4vw, 2rem);
   width: 100%;
@@ -81,7 +81,7 @@ a {
   margin: 0 auto;
   max-width: 1180px;
   min-height: 100vh;
-  padding: 1.25rem;
+  padding: 1.5rem;
 }
 
 .topbar {
@@ -107,4 +107,30 @@ a {
 .p-dropdown,
 .p-calendar {
   width: 100%;
+}
+
+.p-card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  color: var(--app-text);
+}
+
+.p-dialog,
+.p-dropdown-panel,
+.p-datepicker,
+.p-inputnumber-button,
+.p-menu,
+.p-panelmenu,
+.p-sidebar {
+  color: var(--app-text);
+}
+
+.p-inputtext,
+.p-dropdown,
+.p-inputnumber-input,
+.p-password input,
+.p-calendar input {
+  background: #111827;
+  border-color: #374151;
+  color: var(--app-text);
 }

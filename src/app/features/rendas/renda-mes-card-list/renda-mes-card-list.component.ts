@@ -14,7 +14,8 @@ import { RendaMesCardComponent } from '../renda-mes-card/renda-mes-card.componen
 })
 export class RendaMesCardListComponent implements AfterViewInit, OnChanges {
   @Input() refreshKey = 0;
-  @Output() readonly monthSelected = new EventEmitter<MesResumo>();
+  @Output() readonly viewMonth = new EventEmitter<MesResumo>();
+  @Output() readonly editMonth = new EventEmitter<MesResumo>();
   @ViewChild('scroller') private scroller?: ElementRef<HTMLDivElement>;
 
   meses: MesResumo[] = this.buildMonths();

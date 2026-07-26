@@ -1,7 +1,7 @@
 import { CommonModule, formatDate } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { Observable, finalize, switchMap } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DialogModule } from 'primeng/dialog';
@@ -10,7 +10,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
-import { RendaRequest, RendaTipo } from '../../../core/models/renda.models';
+import { RendaLancamento, RendaRequest, RendaResponse, RendaTipo, RendaValorEscopo } from '../../../core/models/renda.models';
 import { RendaService } from '../../../core/services/renda.service';
 
 interface TipoOption {
@@ -46,11 +46,13 @@ interface RendaFormValue {
 })
 export class RendaFormDialogComponent implements OnChanges {
   @Input() visible = false;
+  @Input() renda: RendaLancamento | null = null;
+  @Input() mesReferencia = '';
   @Output() readonly visibleChange = new EventEmitter<boolean>();
   @Output() readonly saved = new EventEmitter<void>();
 
   readonly tipos: TipoOption[] = [
-    { label: 'Salário', value: 'SALARIO' },
+    { label: 'Salario', value: 'SALARIO' },
     { label: 'Freelance', value: 'FREELANCE' },
     { label: 'Investimento', value: 'INVESTIMENTO' },
     { label: 'Outro', value: 'OUTRO' }
@@ -67,6 +69,12 @@ export class RendaFormDialogComponent implements OnChanges {
 
   loading = false;
   errorMessage = '';
+  scopeDialogVisible = false;
+  private pendingPayload: RendaRequest | null = null;
+
+  get editing(): boolean {
+    return Boolean(this.renda);
+  }
 
   constructor(private readonly rendaService: RendaService) {
     this.form.controls.recorrente.valueChanges.subscribe((recorrente) => this.updateConditionalValidators(recorrente));
@@ -75,6 +83,7 @@ export class RendaFormDialogComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['visible']?.currentValue === true) {
       this.errorMessage = '';
+      this.populateForm();
       this.updateConditionalValidators(this.form.controls.recorrente.value);
     }
   }
@@ -94,25 +103,90 @@ export class RendaFormDialogComponent implements OnChanges {
     }
 
     const payload = this.toPayload();
+
+    if (this.renda && this.valorChanged(payload) && this.renda.recorrente) {
+      this.pendingPayload = payload;
+      this.scopeDialogVisible = true;
+      return;
+    }
+
+    const request$ = this.renda
+      ? this.rendaService.atualizarDadosGerais(this.getRendaId(this.renda), payload)
+      : this.rendaService.criar(payload);
+
+    this.save(request$);
+  }
+
+  confirmValorScope(escopo: RendaValorEscopo): void {
+    if (!this.renda || !this.pendingPayload) {
+      return;
+    }
+
+    const renda = this.renda;
+    const payload = this.pendingPayload;
+    const rendaId = this.getRendaId(renda);
+    const valorRequest = {
+      novoValor: payload.valor,
+      mesReferencia: this.mesReferencia,
+      escopo
+    };
+
+    const request$ = this.generalDataChanged(payload)
+      ? this.rendaService
+          .atualizarDadosGerais(rendaId, { ...payload, valor: renda.valor })
+          .pipe(switchMap(() => this.rendaService.atualizarValor(rendaId, valorRequest)))
+      : this.rendaService.atualizarValor(rendaId, valorRequest);
+
+    this.scopeDialogVisible = false;
+    this.save(request$);
+  }
+
+  cancelValorScope(): void {
+    this.pendingPayload = null;
+    this.scopeDialogVisible = false;
+  }
+
+  private populateForm(): void {
+    if (!this.renda) {
+      this.resetForm();
+      return;
+    }
+
+    const dataPrevista = this.renda.dataPrevista ? new Date(`${this.renda.dataPrevista}T00:00:00`) : null;
+    this.form.reset({
+      descricao: this.renda.descricao,
+      valor: this.renda.valor,
+      tipo: this.renda.tipo,
+      recorrente: this.renda.recorrente,
+      diaRecebimento: this.renda.recorrente && dataPrevista ? dataPrevista.getDate() : 5,
+      dataRecebimento: this.renda.recorrente ? null : dataPrevista
+    });
+  }
+
+  private resetForm(): void {
+    this.form.reset({
+      descricao: '',
+      valor: null,
+      tipo: 'SALARIO',
+      recorrente: true,
+      diaRecebimento: 5,
+      dataRecebimento: null
+    });
+  }
+
+  private save(request$: Observable<RendaResponse>): void {
     this.loading = true;
-    this.rendaService
-      .criar(payload)
+    request$
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
-          this.form.reset({
-            descricao: '',
-            valor: null,
-            tipo: 'SALARIO',
-            recorrente: true,
-            diaRecebimento: 5,
-            dataRecebimento: null
-          });
+          this.pendingPayload = null;
+          this.resetForm();
           this.saved.emit();
           this.visibleChange.emit(false);
         },
         error: () => {
-          this.errorMessage = 'Não foi possível salvar a renda. Verifique os dados e tente novamente.';
+          this.errorMessage = 'Nao foi possivel salvar a renda. Verifique os dados e tente novamente.';
         }
       });
   }
@@ -149,5 +223,30 @@ export class RendaFormDialogComponent implements OnChanges {
     }
 
     return payload;
+  }
+
+  private valorChanged(payload: RendaRequest): boolean {
+    return Number(payload.valor.toFixed(2)) !== Number((this.renda?.valor ?? 0).toFixed(2));
+  }
+
+  private generalDataChanged(payload: RendaRequest): boolean {
+    if (!this.renda) {
+      return false;
+    }
+
+    const originalDate = this.renda.dataPrevista ? new Date(`${this.renda.dataPrevista}T00:00:00`) : null;
+    const originalDay = originalDate?.getDate();
+
+    return (
+      payload.descricao !== this.renda.descricao ||
+      payload.tipo !== this.renda.tipo ||
+      payload.recorrente !== this.renda.recorrente ||
+      (payload.recorrente && payload.diaRecebimento !== originalDay) ||
+      (!payload.recorrente && payload.dataRecebimento !== this.renda.dataPrevista)
+    );
+  }
+
+  private getRendaId(renda: RendaLancamento): number {
+    return renda.rendaId ?? renda.id;
   }
 }

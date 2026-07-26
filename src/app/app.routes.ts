@@ -11,14 +11,20 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/cadastro/cadastro.component').then((m) => m.CadastroComponent)
   },
   {
-    path: 'perfil',
+    path: '',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/perfil/perfil.component').then((m) => m.PerfilComponent)
-  },
-  {
-    path: 'rendas',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/rendas/renda-page/renda-page.component').then((m) => m.RendaPageComponent)
+    loadComponent: () =>
+      import('./layout/authenticated-layout/authenticated-layout.component').then((m) => m.AuthenticatedLayoutComponent),
+    children: [
+      {
+        path: 'perfil',
+        loadComponent: () => import('./features/perfil/perfil.component').then((m) => m.PerfilComponent)
+      },
+      {
+        path: 'rendas',
+        loadComponent: () => import('./features/rendas/renda-page/renda-page.component').then((m) => m.RendaPageComponent)
+      }
+    ]
   },
   {
     path: '',

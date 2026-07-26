@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { AuthService } from '../../../core/services/auth.service';
-import { MesResumo } from '../../../core/models/renda.models';
+import { MessageModule } from 'primeng/message';
+import { MesResumo, RendaLancamento } from '../../../core/models/renda.models';
 import { RendaDetalheDialogComponent } from '../renda-detalhe-dialog/renda-detalhe-dialog.component';
 import { RendaFabButtonComponent } from '../renda-fab-button/renda-fab-button.component';
 import { RendaFormDialogComponent } from '../renda-form-dialog/renda-form-dialog.component';
@@ -14,8 +13,8 @@ import { RendaMesCardListComponent } from '../renda-mes-card-list/renda-mes-card
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     ButtonModule,
+    MessageModule,
     RendaDetalheDialogComponent,
     RendaFabButtonComponent,
     RendaFormDialogComponent,
@@ -25,26 +24,34 @@ import { RendaMesCardListComponent } from '../renda-mes-card-list/renda-mes-card
   styleUrl: './renda-page.component.scss'
 })
 export class RendaPageComponent {
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-
   formVisible = false;
   detalheVisible = false;
+  editErrorMessage = '';
   refreshKey = 0;
   selectedMonth: MesResumo | null = null;
-  readonly user = this.authService.user;
+  selectedRenda: RendaLancamento | null = null;
+
+  openCreate(): void {
+    this.selectedRenda = null;
+    this.formVisible = true;
+  }
 
   openDetalhe(mes: MesResumo): void {
     this.selectedMonth = mes;
     this.detalheVisible = true;
   }
 
-  onSaved(): void {
-    this.refreshKey += 1;
+  openEdit(mes: MesResumo): void {
+    this.editErrorMessage = '';
+    this.openDetalhe(mes);
   }
 
-  logout(): void {
-    this.authService.logout();
-    void this.router.navigateByUrl('/login');
+  editRenda(renda: RendaLancamento): void {
+    this.selectedRenda = renda;
+    this.formVisible = true;
+  }
+
+  onSaved(): void {
+    this.refreshKey += 1;
   }
 }

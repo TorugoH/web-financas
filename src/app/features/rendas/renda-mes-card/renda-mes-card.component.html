@@ -1,11 +1,33 @@
-<button type="button" class="month-card" [class.current]="mes.atual" (click)="selected.emit(mes)">
-  <span class="month-label">{{ mes.label }}</span>
+<article class="month-card" [class.current]="mes.atual">
+  <div class="month-content">
+    <span class="month-label">{{ mes.label }}</span>
 
-  <p-skeleton *ngIf="mes.loading" width="7rem" height="1.7rem" />
+    <p-skeleton *ngIf="mes.loading" width="7rem" height="1.7rem" />
 
-  <strong *ngIf="!mes.loading && !mes.erro" class="month-total">
-    {{ mes.total | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
-  </strong>
+    <strong *ngIf="!mes.loading && !mes.erro" class="month-total">
+      {{ mes.total | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+    </strong>
 
-  <span *ngIf="!mes.loading && mes.erro" class="month-error">{{ mes.erro }}</span>
-</button>
+    <span *ngIf="!mes.loading && mes.erro" class="month-error">{{ mes.erro }}</span>
+  </div>
+
+  <div class="month-actions" aria-label="Acoes do mes">
+    <p-button
+      icon="pi pi-eye"
+      label="Visualizar"
+      size="small"
+      [text]="true"
+      [disabled]="mes.loading"
+      (onClick)="view.emit(mes)"
+    />
+    <p-button
+      icon="pi pi-pencil"
+      label="Editar"
+      size="small"
+      severity="secondary"
+      [text]="true"
+      [disabled]="mes.loading"
+      (onClick)="edit.emit(mes)"
+    />
+  </div>
+</article>

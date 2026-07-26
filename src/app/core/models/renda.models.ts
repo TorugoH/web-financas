@@ -32,6 +32,7 @@ export interface RendaTotalResponse {
 
 export interface RendaLancamento {
   id: number;
+  rendaId?: number;
   descricao: string;
   tipo: RendaTipo;
   valor: number;

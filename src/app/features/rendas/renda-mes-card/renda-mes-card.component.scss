@@ -1,32 +1,40 @@
 .month-card {
   align-items: flex-start;
-  background: #ffffff;
+  background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: 8px;
   color: var(--app-text);
-  cursor: pointer;
   display: flex;
   flex: 0 0 168px;
   flex-direction: column;
-  gap: 0.75rem;
-  height: 168px;
-  justify-content: center;
+  gap: 0.9rem;
+  height: 190px;
+  justify-content: space-between;
   padding: 1rem;
   text-align: left;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
-  width: 168px;
+  width: 190px;
 }
 
 .month-card:hover {
   border-color: var(--app-accent);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.24);
   transform: translateY(-2px);
 }
 
 .month-card.current {
-  background: #edfdf9;
+  background: #18242f;
   border: 2px solid var(--app-accent);
-  box-shadow: 0 12px 30px rgba(15, 159, 143, 0.16);
+  box-shadow: 0 16px 34px rgba(34, 211, 238, 0.16);
+}
+
+.month-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  justify-content: center;
+  min-width: 0;
 }
 
 .month-label {
@@ -42,7 +50,27 @@
 }
 
 .month-error {
-  color: #b42318;
+  color: #fca5a5;
   font-size: 0.86rem;
   line-height: 1.25;
+}
+
+.month-actions {
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+  display: flex;
+  gap: 0.15rem;
+  justify-content: space-between;
+  margin-inline: -0.35rem;
+  opacity: 0.82;
+  padding-top: 0.45rem;
+  width: calc(100% + 0.7rem);
+}
+
+.month-card:hover .month-actions,
+.month-card:focus-within .month-actions {
+  opacity: 1;
+}
+
+:host ::ng-deep .month-actions .p-button {
+  padding-inline: 0.45rem;
 }
