@@ -1,0 +1,11 @@
+<button type="button" class="month-card" [class.current]="mes.atual" (click)="selected.emit(mes)">
+  <span class="month-label">{{ mes.label }}</span>
+
+  <p-skeleton *ngIf="mes.loading" width="7rem" height="1.7rem" />
+
+  <strong *ngIf="!mes.loading && !mes.erro" class="month-total">
+    {{ mes.total | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+  </strong>
+
+  <span *ngIf="!mes.loading && mes.erro" class="month-error">{{ mes.erro }}</span>
+</button>

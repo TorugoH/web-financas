@@ -1,0 +1,8 @@
+<div #scroller class="months-scroller" aria-label="Resumo mensal de rendas">
+  <app-renda-mes-card
+    *ngFor="let mes of meses; trackBy: trackByPeriodo"
+    [class.current-card]="mes.atual"
+    [mes]="mes"
+    (selected)="monthSelected.emit($event)"
+  />
+</div>

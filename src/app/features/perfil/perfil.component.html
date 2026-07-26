@@ -1,0 +1,26 @@
+<main class="page-shell">
+  <header class="topbar">
+    <div class="page-title">
+      <h1>Perfil</h1>
+      <p class="muted mt-2 mb-0">Dados da conta autenticada.</p>
+    </div>
+    <div class="topbar-actions">
+      <p-button routerLink="/rendas" label="Rendas" icon="pi pi-wallet" [outlined]="true" />
+      <p-button label="Sair" icon="pi pi-sign-out" severity="danger" [outlined]="true" (onClick)="logout()" />
+    </div>
+  </header>
+
+  <p-card>
+    <ng-template pTemplate="title">Informações pessoais</ng-template>
+    <div class="flex flex-column gap-3">
+      <div>
+        <span class="block muted text-sm mb-1">Nome</span>
+        <strong>{{ user()?.nome || 'Usuário autenticado' }}</strong>
+      </div>
+      <div>
+        <span class="block muted text-sm mb-1">E-mail</span>
+        <strong>{{ user()?.email || 'E-mail não disponível' }}</strong>
+      </div>
+    </div>
+  </p-card>
+</main>

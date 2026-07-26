@@ -1,0 +1,33 @@
+<main class="page-shell renda-page">
+  <app-renda-fab-button (add)="formVisible = true" />
+
+  <header class="topbar">
+    <div class="page-title">
+      <h1>Rendas</h1>
+      <p class="muted mt-2 mb-0">Resumo mensal das entradas cadastradas.</p>
+    </div>
+
+    <div class="topbar-actions">
+      <span class="muted hidden sm:inline">Olá, {{ user()?.nome || 'usuário' }}</span>
+      <p-button routerLink="/perfil" icon="pi pi-user" label="Perfil" [outlined]="true" />
+      <p-button icon="pi pi-sign-out" label="Sair" severity="secondary" [text]="true" (onClick)="logout()" />
+    </div>
+  </header>
+
+  <section class="summary-section">
+    <div class="section-heading">
+      <h2>Resumo mensal</h2>
+      <span class="muted">Role para ver meses anteriores e futuros</span>
+    </div>
+
+    <app-renda-mes-card-list [refreshKey]="refreshKey" (monthSelected)="openDetalhe($event)" />
+  </section>
+
+  <app-renda-form-dialog [(visible)]="formVisible" (saved)="onSaved()" />
+
+  <app-renda-detalhe-dialog
+    [(visible)]="detalheVisible"
+    [periodo]="selectedMonth?.periodo || ''"
+    [label]="selectedMonth?.label || ''"
+  />
+</main>
