@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   RendaLancamento,
   RendaRequest,
@@ -9,7 +10,7 @@ import {
   RendaValorRequest
 } from '../models/renda.models';
 
-const API_URL = 'http://localhost:8081';
+const API_URL = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class RendaService {

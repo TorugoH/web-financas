@@ -1,9 +1,10 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { AuthRequest, AuthResponse, AuthUser, RegisterRequest } from '../models/auth.models';
 
-const API_URL = 'http://localhost:8081';
+const API_URL = environment.apiUrl;
 const TOKEN_KEY = 'web-financas.token';
 const USER_KEY = 'web-financas.user';
 
