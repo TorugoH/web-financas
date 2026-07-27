@@ -65,11 +65,12 @@ export class RendaMesCardListComponent implements AfterViewInit, OnChanges {
 
   private buildMonths(): MesResumo[] {
     const now = new Date();
+    const currentYear = now.getFullYear();
     const currentPeriod = formatDate(now, 'yyyy-MM', 'pt-BR');
     const months: MesResumo[] = [];
 
-    for (let offset = -12; offset <= 12; offset += 1) {
-      const date = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    for (let month = 0; month < 12; month += 1) {
+      const date = new Date(currentYear, month, 1);
       const periodo = formatDate(date, 'yyyy-MM', 'pt-BR');
       months.push({
         periodo,
@@ -94,6 +95,6 @@ export class RendaMesCardListComponent implements AfterViewInit, OnChanges {
       return;
     }
 
-    container.scrollLeft = current.offsetLeft - container.clientWidth / 2 + current.clientWidth / 2;
+    current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }
 }
