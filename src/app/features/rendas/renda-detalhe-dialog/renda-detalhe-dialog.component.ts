@@ -9,11 +9,14 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { RendaLancamento } from '../../../core/models/renda.models';
 import { RendaService } from '../../../core/services/renda.service';
+import {ConfirmationService} from 'primeng/api';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-renda-detalhe-dialog',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe, ButtonModule, MessageModule, ProgressSpinnerModule, SidebarModule, TableModule, TagModule],
+  imports: [CommonModule, CurrencyPipe, DatePipe, ButtonModule, MessageModule, ProgressSpinnerModule, SidebarModule, TableModule, TagModule, ConfirmDialogModule ],
+  providers: [ConfirmationService],
   templateUrl: './renda-detalhe-dialog.component.html',
   styleUrl: './renda-detalhe-dialog.component.scss'
 })
@@ -24,12 +27,16 @@ export class RendaDetalheDialogComponent implements OnChanges {
   @Input() refreshKey = 0;
   @Output() readonly visibleChange = new EventEmitter<boolean>();
   @Output() readonly editRenda = new EventEmitter<RendaLancamento>();
+  @Output() inativarLancamento = new EventEmitter<RendaLancamento>();
 
   lancamentos: RendaLancamento[] = [];
   loading = false;
   errorMessage = '';
 
-  constructor(private readonly rendaService: RendaService) {}
+  constructor(
+    private readonly rendaService: RendaService,
+    private confirmationService: ConfirmationService
+  ) {}
 
   close(): void {
     this.visibleChange.emit(false);
@@ -60,5 +67,16 @@ export class RendaDetalheDialogComponent implements OnChanges {
           this.errorMessage = 'Não foi possível carregar o extrato deste mês.';
         }
       });
+  }
+
+  confirmarInativar(lancamento: RendaLancamento): void {
+    this.confirmationService.confirm({
+      message: `Deseja inativar o lançamento "${lancamento.descricao}"?`,
+      header: 'Confirmar inativação',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sim, inativar',
+      rejectLabel: 'Cancelar',
+      accept: () => this.inativarLancamento.emit(lancamento)
+    });
   }
 }

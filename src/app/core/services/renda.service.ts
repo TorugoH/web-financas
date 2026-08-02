@@ -43,4 +43,9 @@ export class RendaService {
     const params = new HttpParams().set('mes', mes);
     return this.http.get<RendaLancamento[]>(`${this.baseUrl}/rendas/lancamentos`, { params });
   }
+
+  inativar(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/rendas/lancamentos/${id}/inativar`, {});
+  }
+
 }
