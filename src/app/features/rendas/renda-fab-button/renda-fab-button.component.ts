@@ -19,9 +19,15 @@ import { ButtonModule } from 'primeng/button';
     `
       :host {
         position: fixed;
-        right: 1.25rem;
-        top: 1rem;
+        right: 1.5rem;
+        bottom: 1.5rem;
         z-index: 1000;
+      }
+
+      @media (min-width: 1280px) {
+        :host {
+          right: calc((100vw - 1180px) / 2 - 0.5rem);
+        }
       }
 
       :host ::ng-deep .renda-fab {

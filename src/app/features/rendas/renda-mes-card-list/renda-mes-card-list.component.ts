@@ -95,6 +95,6 @@ export class RendaMesCardListComponent implements AfterViewInit, OnChanges {
       return;
     }
 
-    current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    current.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 }

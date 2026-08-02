@@ -5,7 +5,6 @@
   border-radius: 8px;
   color: var(--app-text);
   display: flex;
-  flex: 0 0 168px;
   flex-direction: column;
   gap: 0.9rem;
   height: 190px;
@@ -13,7 +12,7 @@
   padding: 1rem;
   text-align: left;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
-  width: 190px;
+  width: 100%;
 }
 
 .month-card:hover {
