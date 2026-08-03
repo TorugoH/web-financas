@@ -1,12 +1,67 @@
 <main class="page-shell analise-page">
+
   <header class="topbar">
     <div class="page-title">
       <h1>Análise</h1>
-      <p class="muted mt-2 mb-0">Visualize gráficos e estatísticas financeiras.</p>
+      <p class="muted mt-2 mb-0">
+        Compare receitas e despesas ao longo dos meses.
+      </p>
     </div>
   </header>
 
-  <section class="content-section">
-    <p class="muted">Em breve: Gráficos e análises detalhadas das suas finanças.</p>
+  <section class="cards-section">
+
+    <div class="analise-card" *ngFor="let item of dados">
+
+      <div class="card-header">
+        <h2>{{ item.mes }}</h2>
+      </div>
+
+      <div class="metric">
+
+        <div class="metric-header">
+          <span>Receitas</span>
+          <strong>{{ item.valorRenda | currency:'BRL' }}</strong>
+        </div>
+
+        <div class="progress receita">
+          <div class="fill"
+               [style.width.%]="100">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="metric">
+
+        <div class="metric-header">
+          <span>Despesas</span>
+          <strong>{{ item.valorDespesa | currency:'BRL' }}</strong>
+        </div>
+
+        <div class="progress despesa">
+          <div class="fill"
+               [style.width.%]="(item.valorDespesa/item.valorRenda)*100">
+          </div>
+        </div>
+
+      </div>
+
+      <div
+        class="saldo"
+        [class.positivo]="item.diferenca >= 0"
+        [class.negativo]="item.diferenca < 0">
+
+        <span>Saldo</span>
+
+        <strong>
+          {{ item.diferenca | currency:'BRL' }}
+        </strong>
+
+      </div>
+
+    </div>
+
   </section>
+
 </main>

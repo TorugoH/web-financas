@@ -9,6 +9,7 @@ import {
   DespesaTotalResponse,
   DespesaValorRequest
 } from '../models/despesa.models';
+import {DespesasXRenda} from '../models/DespesasXRenda.model';
 
 const API_URL = environment.apiUrl;
 
@@ -46,6 +47,12 @@ export class DespesaService {
 
   inativar(id: number): Observable<void> {
     return this.http.patch<void>(`${this.baseUrl}/despesas/lancamentos/${id}/inativar`, {});
+  }
+
+  dashboard(): Observable<DespesasXRenda[]> {
+    return this.http.get<DespesasXRenda[]>(
+      `${this.baseUrl}/despesas/renda-despesas`
+    );
   }
 
 }

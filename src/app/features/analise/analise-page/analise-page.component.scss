@@ -2,11 +2,106 @@
   padding-top: 5rem;
 }
 
-.content-section {
+.cards-section {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.analise-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 2rem 0;
+  gap: 1.25rem;
+}
+
+.card-header {
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  span {
+    color: var(--text-color-secondary);
+    font-size: .9rem;
+  }
+
+  strong {
+    font-size: .95rem;
+  }
+}
+
+.progress {
+  background: var(--surface-200);
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width .3s ease;
+}
+
+.receita .fill {
+  background: #22c55e;
+}
+
+.despesa .fill {
+  background: #ef4444;
+}
+
+.saldo {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  span {
+    color: var(--text-color-secondary);
+  }
+
+  strong {
+    font-size: 1rem;
+  }
+}
+
+.positivo {
+  strong {
+    color: #22c55e;
+  }
+}
+
+.negativo {
+  strong {
+    color: #ef4444;
+  }
+}
+
+@media (max-width: 1100px) {
+  .cards-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
@@ -14,8 +109,7 @@
     padding-top: 4.75rem;
   }
 
-  .topbar {
-    align-items: flex-start;
-    flex-direction: column;
+  .cards-section {
+    grid-template-columns: 1fr;
   }
 }
