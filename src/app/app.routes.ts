@@ -23,6 +23,14 @@ export const routes: Routes = [
       {
         path: 'rendas',
         loadComponent: () => import('./features/rendas/renda-page/renda-page.component').then((m) => m.RendaPageComponent)
+      },
+      {
+        path: 'despesas',
+        loadComponent: () => import('./features/despesas/despesa-page/despesa-page.component').then((m) => m.DespesaPageComponent)
+      },
+      {
+        path: 'analise',
+        loadComponent: () => import('./features/analise/analise-page/analise-page.component').then((m) => m.AnalisePageComponent)
       }
     ]
   },

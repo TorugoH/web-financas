@@ -1,0 +1,38 @@
+:host ::ng-deep .despesa-bottom-sheet {
+  background: #151a23;
+  border: 1px solid #273244;
+  border-radius: 18px 18px 0 0;
+  color: var(--app-text);
+  height: min(78vh, 720px);
+  width: 100%;
+}
+
+:host ::ng-deep .despesa-bottom-sheet .p-sidebar-content {
+  height: 100%;
+  overflow: auto;
+  padding: 0 1.25rem 1.25rem;
+}
+
+.sheet-handle {
+  background: #64748b;
+  border-radius: 999px;
+  height: 0.3rem;
+  margin: 0.85rem auto 1rem;
+  width: 3.5rem;
+}
+
+.sheet-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.sheet-header h2 {
+  color: #f8fafc;
+  font-size: 1.25rem;
+  letter-spacing: 0;
+  margin: 0.2rem 0 0;
+  text-transform: capitalize;
+}

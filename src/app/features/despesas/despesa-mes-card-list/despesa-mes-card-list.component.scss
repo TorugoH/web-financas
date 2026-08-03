@@ -1,0 +1,28 @@
+.months-scroller {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding: 0.5rem 0 1.25rem;
+}
+
+app-renda-mes-card {
+  display: block;
+}
+
+@media (max-width: 1200px) {
+  .months-scroller {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .months-scroller {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .months-scroller {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,41 @@
+<main class="page-shell despesa-page">
+  <app-despesa-fab-button (add)="openCreate()" />
+
+  <header class="topbar">
+    <div class="page-title">
+      <h1>Despesas</h1>
+      <p class="muted mt-2 mb-0">Resumo mensal das saídas cadastradas.</p>
+    </div>
+  </header>
+
+  <section class="summary-section">
+    <div class="section-heading">
+      <h2>Resumo mensal</h2>
+      <span class="muted">Visualize todos os meses em grade</span>
+    </div>
+
+    <p-message *ngIf="editErrorMessage" severity="warn" [text]="editErrorMessage" styleClass="w-full" />
+
+    <app-despesa-mes-card-list
+      [refreshKey]="refreshKey"
+      (viewMonth)="openDetalhe($event)"
+      (editMonth)="openEdit($event)"
+    />
+  </section>
+
+  <app-despesa-form-dialog
+    [(visible)]="formVisible"
+    [despesa]="selectedDespesa"
+    [mesReferencia]="selectedMonth?.periodo || ''"
+    (saved)="onSaved()"
+  />
+
+  <app-despesa-detalhe-dialog
+    [(visible)]="detalheVisible"
+    [periodo]="selectedMonth?.periodo || ''"
+    [label]="selectedMonth?.label || ''"
+    [refreshKey]="refreshKey"
+    (editDespesa)="editDespesa($event)"
+    (inativarLancamento)="inativarDespesa($event)"
+  />
+</main>
