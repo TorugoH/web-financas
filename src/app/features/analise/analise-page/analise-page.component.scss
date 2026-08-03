@@ -2,23 +2,31 @@
   padding-top: 5rem;
 }
 
+/* Container dos cards */
 .cards-section {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, 380px);
   gap: 1rem;
+  justify-content: start;
+  align-items: start;
 }
 
+
+/* Card */
 .analise-card {
+  width: 380px;
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
   border-radius: 12px;
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
+
+/* Cabeçalho */
 .card-header {
+  margin-bottom: .75rem;
+
   h2 {
     margin: 0;
     font-size: 1rem;
@@ -26,11 +34,31 @@
   }
 }
 
+
+/* Corpo */
+.card-body {
+  display: flex;
+  align-items: stretch;
+  gap: .75rem;
+}
+
+
+/* Parte principal */
+.resumo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+
+/* Métricas */
 .metric {
   display: flex;
   flex-direction: column;
-  gap: .5rem;
+  gap: .4rem;
 }
+
 
 .metric-header {
   display: flex;
@@ -39,20 +67,25 @@
 
   span {
     color: var(--text-color-secondary);
-    font-size: .9rem;
+    font-size: .85rem;
   }
 
   strong {
-    font-size: .95rem;
+    font-size: .85rem;
+    font-weight: 600;
   }
 }
 
+
+/* Barras */
 .progress {
+  width: 100%;
+  height: 7px;
   background: var(--surface-200);
-  height: 8px;
   border-radius: 999px;
   overflow: hidden;
 }
+
 
 .fill {
   height: 100%;
@@ -60,56 +93,150 @@
   transition: width .3s ease;
 }
 
+
 .receita .fill {
+  width: 100%;
   background: #22c55e;
 }
+
 
 .despesa .fill {
   background: #ef4444;
 }
 
+
+/* Saldo */
 .saldo {
-  margin-top: auto;
-  padding-top: 1rem;
+  margin-top: .25rem;
+  padding-top: .75rem;
+
   border-top: 1px solid var(--surface-border);
 
   display: flex;
   justify-content: space-between;
   align-items: center;
 
+
   span {
     color: var(--text-color-secondary);
+    font-size: .85rem;
   }
 
+
   strong {
-    font-size: 1rem;
+    font-size: .95rem;
+    font-weight: 700;
   }
 }
 
-.positivo {
-  strong {
-    color: #22c55e;
-  }
+
+.positivo strong {
+  color: #22c55e;
 }
 
-.negativo {
-  strong {
-    color: #ef4444;
-  }
+
+.negativo strong {
+  color: #ef4444;
 }
 
-@media (max-width: 1100px) {
+
+
+/* Investimento */
+.investimento {
+
+  width: 85px;
+  flex-shrink: 0;
+
+  border-left: 1px solid var(--surface-border);
+
+  padding-left: .75rem;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+  align-items: center;
+
+  text-align: center;
+
+  gap: .4rem;
+}
+
+
+.investimento .titulo {
+
+  font-size: .65rem;
+
+  color: var(--text-color-secondary);
+
+  line-height: 1.2;
+
+}
+
+
+.investimento .valor {
+
+  font-size: .95rem;
+
+  font-weight: 700;
+
+  color: var(--primary-color);
+
+}
+
+
+
+/* Notebook */
+@media (max-width: 1300px) {
+
   .cards-section {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, 380px);
   }
+
 }
 
-@media (max-width: 640px) {
-  .analise-page {
-    padding-top: 4.75rem;
-  }
+
+
+/* Tablet */
+@media (max-width: 850px) {
 
   .cards-section {
     grid-template-columns: 1fr;
   }
+
+
+  .analise-card {
+    width: 100%;
+  }
+
+}
+
+
+
+/* Celular */
+@media (max-width: 640px) {
+
+
+  .analise-page {
+    padding-top: 4.75rem;
+  }
+
+
+  .card-body {
+    flex-direction: column;
+  }
+
+
+  .investimento {
+
+    width: 100%;
+
+    border-left: none;
+
+    border-top: 1px solid var(--surface-border);
+
+    padding: 1rem 0 0;
+
+  }
+
 }

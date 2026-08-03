@@ -10,57 +10,89 @@
   </header>
 
   <section class="cards-section">
+    <div class="cards-section">
 
-    <div class="analise-card" *ngFor="let item of dados">
+      <div class="analise-card" *ngFor="let item of dados">
 
-      <div class="card-header">
-        <h2>{{ item.mes }}</h2>
-      </div>
-
-      <div class="metric">
-
-        <div class="metric-header">
-          <span>Receitas</span>
-          <strong>{{ item.valorRenda | currency:'BRL' }}</strong>
+        <div class="card-header">
+          <h2>{{ item.mes }}</h2>
         </div>
 
-        <div class="progress receita">
-          <div class="fill"
-               [style.width.%]="100">
+        <div class="card-body">
+
+          <div class="resumo">
+
+            <div class="metric">
+              <div class="metric-header">
+                <span>Receitas</span>
+                <strong>{{ item.valorRenda | currency:'BRL' }}</strong>
+              </div>
+
+              <div class="progress receita">
+                <div class="fill"></div>
+              </div>
+            </div>
+
+
+            <div class="metric">
+
+              <div class="metric-header">
+
+                <span>Despesas</span>
+
+                <strong>
+                  {{ item.valorDespesa | currency:'BRL' }}
+                </strong>
+
+              </div>
+
+
+              <div class="progress despesa">
+
+                <div
+                  class="fill"
+                  [style.width.%]="(item.valorDespesa / item.valorRenda) * 100">
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div
+              class="saldo"
+              [class.positivo]="item.diferenca >= 0"
+              [class.negativo]="item.diferenca < 0">
+
+              <span>Saldo</span>
+
+              <strong>
+                {{ item.diferenca | currency:'BRL' }}
+              </strong>
+
+            </div>
+
+
           </div>
-        </div>
 
-      </div>
 
-      <div class="metric">
+          <div class="investimento">
 
-        <div class="metric-header">
-          <span>Despesas</span>
-          <strong>{{ item.valorDespesa | currency:'BRL' }}</strong>
-        </div>
+        <span class="titulo">
+          Sugestão de investimento
+        </span>
 
-        <div class="progress despesa">
-          <div class="fill"
-               [style.width.%]="(item.valorDespesa/item.valorRenda)*100">
+
+            <strong class="valor">
+              {{ item.diferenca * 0.3 | currency:'BRL' }}
+            </strong>
+
           </div>
+
         </div>
-
       </div>
-
-      <div
-        class="saldo"
-        [class.positivo]="item.diferenca >= 0"
-        [class.negativo]="item.diferenca < 0">
-
-        <span>Saldo</span>
-
-        <strong>
-          {{ item.diferenca | currency:'BRL' }}
-        </strong>
-
-      </div>
-
     </div>
+
 
   </section>
 
