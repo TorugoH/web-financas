@@ -64,20 +64,18 @@ export class RendaMesCardListComponent implements AfterViewInit, OnChanges {
   }
 
   private buildMonths(): MesResumo[] {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentPeriod = formatDate(now, 'yyyy-MM', 'pt-BR');
+    const year = new Date().getFullYear();
     const months: MesResumo[] = [];
 
-    for (let month = 0; month < 12; month += 1) {
-      const date = new Date(currentYear, month, 1);
-      const periodo = formatDate(date, 'yyyy-MM', 'pt-BR');
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(year, 7 + i, 1); // 7 = Agosto
+
       months.push({
-        periodo,
+        periodo: formatDate(date, 'yyyy-MM', 'pt-BR'),
         label: formatDate(date, 'MMMM yyyy', 'pt-BR'),
         total: 0,
         loading: true,
-        atual: periodo === currentPeriod
+        atual: i === 0
       });
     }
 
