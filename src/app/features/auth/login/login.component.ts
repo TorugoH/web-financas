@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -25,7 +25,7 @@ import { AuthService } from '../../../core/services/auth.service';
   ],
   templateUrl: './login.component.html'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -37,6 +37,12 @@ export class LoginComponent {
 
   loading = false;
   errorMessage = '';
+
+  ngOnInit(): void {
+    if (this.authService.isAuthenticated()) {
+      void this.router.navigateByUrl('/analise');
+    }
+  }
 
   submit(): void {
     this.errorMessage = '';
@@ -51,7 +57,7 @@ export class LoginComponent {
       .login(this.form.getRawValue())
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: () => void this.router.navigateByUrl('/rendas'),
+        next: () => void this.router.navigateByUrl('/analise'),
         error: () => {
           this.errorMessage = 'E-mail ou senha incorretos. Confira os dados e tente novamente.';
         }

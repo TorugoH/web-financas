@@ -47,7 +47,7 @@ export class CadastroComponent {
       .registrar({ nome, email, password })
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: () => void this.router.navigateByUrl('/rendas'),
+        next: () => void this.router.navigateByUrl('/analise'),
         error: () => {
           this.errorMessage = 'Não foi possível concluir o cadastro. Verifique os dados e tente novamente.';
         }

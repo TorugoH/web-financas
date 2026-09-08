@@ -1,99 +1,465 @@
-<main class="page-shell analise-page">
-
-  <header class="topbar">
-    <div class="page-title">
-      <h1>Análise</h1>
-      <p class="muted mt-2 mb-0">
-        Compare receitas e despesas ao longo dos meses.
-      </p>
-    </div>
+<main class="dashboard-shell">
+  <header class="dashboard-header">
+    <h1>Controle financeiro</h1>
+    <button type="button" class="logout-button-inline" (click)="logout()" aria-label="Sair">
+      <i class="pi pi-sign-out" aria-hidden="true"></i>
+      <span>Sair</span>
+    </button>
   </header>
 
-  <section class="cards-section">
-    <div class="cards-section">
+  <nav class="tabs" aria-label="Navegacao do dashboard">
+    <button
+      type="button"
+      *ngFor="let tab of tabs"
+      [class.active]="abaSelecionada === tab.value"
+      (click)="selecionarAba(tab.value)"
+    >
+      {{ tab.label }}
+    </button>
+  </nav>
 
-      <div class="analise-card" *ngFor="let item of dados">
+  <p class="feedback error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="feedback success" *ngIf="successMessage">{{ successMessage }}</p>
 
-        <div class="card-header">
-          <h2>{{ item.mes }}</h2>
-        </div>
-
-        <div class="card-body">
-
-          <div class="resumo">
-
-            <div class="metric">
-              <div class="metric-header">
-                <span>Receitas</span>
-                <strong>{{ item.valorRenda | currency:'BRL' }}</strong>
-              </div>
-
-              <div class="progress receita">
-                <div class="fill"></div>
-              </div>
-            </div>
-
-
-            <div class="metric">
-
-              <div class="metric-header">
-
-                <span>Despesas</span>
-
-                <strong>
-                  {{ item.valorDespesa | currency:'BRL' }}
-                </strong>
-
-              </div>
-
-
-              <div class="progress despesa">
-
-                <div
-                  class="fill"
-                  [style.width.%]="(item.valorDespesa / item.valorRenda) * 100">
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <div
-              class="saldo"
-              [class.positivo]="item.diferenca >= 0"
-              [class.negativo]="item.diferenca < 0">
-
-              <span>Saldo</span>
-
-              <strong>
-                {{ item.diferenca | currency:'BRL' }}
-              </strong>
-
-            </div>
-
-
-          </div>
-
-
-          <div class="investimento">
-
-        <span class="titulo">
-          Sugestão de investimento
-        </span>
-
-
-            <strong class="valor">
-              {{ item.diferenca * 0.3 | currency:'BRL' }}
-            </strong>
-
-          </div>
-
-        </div>
-      </div>
+  <section *ngIf="abaSelecionada === 'resumo'" class="tab-panel">
+    <div class="date-filters">
+      <label>
+        <span>De</span>
+        <p-calendar [(ngModel)]="dataInicio" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
+      </label>
+      <label>
+        <span>At&eacute;</span>
+        <p-calendar [(ngModel)]="dataFim" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
+      </label>
+      <button type="button" (click)="usarMesAtual()">Este m&ecirc;s</button>
+      <button type="button" (click)="aplicarPeriodo(6)">6 meses</button>
+      <button type="button" (click)="aplicarPeriodo(12)">12 meses</button>
     </div>
 
+    <div class="cutoff-row">
+      <span>Mostrando o m&ecirc;s atual (vira refer&ecirc;ncia ap&oacute;s o dia {{ diaCorte }})</span>
+      <label>Dia de corte: <input type="number" min="1" max="31" [(ngModel)]="diaCorte" /></label>
+    </div>
 
+    <div class="month-grid">
+      <article class="month-card current-month">
+        <h2>M&Ecirc;S ATUAL ({{ mesAtualLabel }})</h2>
+        <div>
+          <span>Renda</span>
+          <strong class="positive">{{ (mesAtualResumo?.valorRenda || 0) | currency:'BRL' }}</strong>
+        </div>
+        <div>
+          <span>Despesa</span>
+          <strong class="negative">{{ (mesAtualResumo?.valorDespesa || 0) | currency:'BRL' }}</strong>
+        </div>
+        <div>
+          <span>Saldo</span>
+          <strong [class.positive]="(mesAtualResumo?.diferenca || 0) >= 0" [class.negative]="(mesAtualResumo?.diferenca || 0) < 0">
+            {{ (mesAtualResumo?.diferenca || 0) | currency:'BRL' }}
+          </strong>
+        </div>
+      </article>
+
+      <article class="month-card next-month">
+        <h2>M&Ecirc;S SEGUINTE ({{ mesSeguinteLabel }})</h2>
+        <div>
+          <span>Renda prevista</span>
+          <strong class="positive">{{ (mesSeguinteResumo?.valorRenda || 0) | currency:'BRL' }}</strong>
+        </div>
+        <div>
+          <span>A pagar</span>
+          <strong class="negative">{{ (mesSeguinteResumo?.valorDespesa || 0) | currency:'BRL' }}</strong>
+        </div>
+        <div>
+          <span>Saldo previsto</span>
+          <strong [class.positive]="(mesSeguinteResumo?.diferenca || 0) >= 0" [class.negative]="(mesSeguinteResumo?.diferenca || 0) < 0">
+            {{ (mesSeguinteResumo?.diferenca || 0) | currency:'BRL' }}
+          </strong>
+        </div>
+      </article>
+    </div>
+
+    <div class="metric-grid">
+      <article class="metric-card">
+        <span>Total rendas</span>
+        <strong class="positive">{{ totalRendas | currency:'BRL' }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Despesas no per&iacute;odo</span>
+        <strong class="negative">{{ totalDespesas | currency:'BRL' }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Patrim&ocirc;nio investido</span>
+        <strong class="primary">{{ patrimonioInvestido | currency:'BRL' }}</strong>
+      </article>
+    </div>
+
+    <article class="panel">
+      <h2>Renda x Despesa por m&ecirc;s</h2>
+      <div class="bar-chart" *ngIf="chartPoints.length; else semGrafico">
+        <div class="axis">
+          <span>6000</span>
+          <span>4500</span>
+          <span>3000</span>
+          <span>1500</span>
+          <span>0</span>
+        </div>
+        <div class="chart-columns">
+          <div class="chart-column" *ngFor="let point of chartPoints">
+            <div class="column-bars">
+              <span class="income-bar" [style.height.%]="getBarHeight(point.renda + point.investimento)"></span>
+              <span class="expense-bar" [style.height.%]="getBarHeight(point.despesa)"></span>
+            </div>
+            <small>{{ point.label }}</small>
+          </div>
+        </div>
+      </div>
+      <ng-template #semGrafico>
+        <p class="empty-state">Nenhum dado mensal encontrado.</p>
+      </ng-template>
+      <div class="legend">
+        <span><i class="legend-dot income-dot"></i>Renda</span>
+        <span><i class="legend-dot expense-dot"></i>Despesa</span>
+      </div>
+    </article>
+
+    <article class="panel">
+      <h2>Despesas por categoria (no per&iacute;odo filtrado)</h2>
+      <div class="category-grid" *ngIf="despesasPorTipo.length; else semCategorias">
+        <div class="pie-chart">
+          <span *ngFor="let item of despesasPorTipo; let i = index" [style.background]="getPieSliceStyle(i)"></span>
+        </div>
+        <div class="category-list">
+          <div class="category-item" *ngFor="let item of despesasPorTipo">
+            <i [style.background]="item.color"></i>
+            <span>{{ item.name }}</span>
+            <strong>{{ item.value | currency:'BRL' }}</strong>
+          </div>
+        </div>
+      </div>
+      <ng-template #semCategorias>
+        <p class="empty-state">Nenhuma despesa no per&iacute;odo filtrado.</p>
+      </ng-template>
+    </article>
   </section>
 
+  <section *ngIf="abaSelecionada === 'rendas'" class="tab-panel">
+    <div class="month-filter-row">
+      <label>
+        <span>M&ecirc;s</span>
+        <p-calendar [(ngModel)]="mesSelecionadoDate" view="month" dateFormat="MM yy" [showIcon]="true" appendTo="body" />
+      </label>
+    </div>
+
+    <div class="metric-grid">
+      <article class="metric-card">
+        <span>Total de {{ mesSelecionadoLabel }}</span>
+        <strong class="positive">{{ totalRendasMesSelecionado | currency:'BRL' }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Lan&ccedil;amentos no m&ecirc;s</span>
+        <strong class="primary">{{ rendasDoMesSelecionado.length }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>M&eacute;dia mensal no per&iacute;odo</span>
+        <strong class="positive">{{ (resumosFiltrados.length ? totalRendas / resumosFiltrados.length : 0) | currency:'BRL' }}</strong>
+      </article>
+    </div>
+
+    <article class="panel form-panel">
+      <h2>Lan&ccedil;ar renda</h2>
+      <form class="inline-entry-form" [formGroup]="formRenda" (ngSubmit)="adicionarRenda()">
+        <label><span>Descri&ccedil;&atilde;o</span><input type="text" formControlName="descricao" placeholder="Ex: Salario" /></label>
+        <label><span>Tipo</span><select formControlName="tipo"><option *ngFor="let tipo of rendaTipos" [ngValue]="tipo.value">{{ tipo.label }}</option></select></label>
+        <label><span>Valor (R$)</span><input type="number" formControlName="valor" min="0.01" step="0.01" placeholder="0.00" /></label>
+        <label><span>Data recebimento</span><input type="date" formControlName="dataRecebimento" /></label>
+        <button type="submit" class="primary-button" [disabled]="salvandoRenda">{{ salvandoRenda ? 'Salvando...' : 'Adicionar renda' }}</button>
+      </form>
+    </article>
+
+    <article class="panel">
+      <h2>Rendas m&ecirc;s a m&ecirc;s</h2>
+      <div class="month-list-grid">
+        <div class="month-mini-card" *ngFor="let item of resumosFiltrados">
+          <span>{{ formatarMesResumo(item) }}</span>
+          <strong class="positive">{{ rendaSemInvestimento(item) | currency:'BRL' }}</strong>
+          <small>Investimentos: {{ (item.valorInvestimento || 0) | currency:'BRL' }}</small>
+        </div>
+      </div>
+      <p class="empty-state" *ngIf="!resumosFiltrados.length">Nenhuma renda encontrada no per&iacute;odo.</p>
+    </article>
+
+    <article class="panel">
+      <h2>Lan&ccedil;amentos de renda</h2>
+      <div class="launch-row" *ngFor="let item of rendasDoMesSelecionado">
+        <div>
+          <span class="pill">RENDA</span>
+          <strong>{{ item.descricao }}</strong>
+          <small>{{ item.dataPrevista | date:'dd/MM/yyyy':'UTC' }}</small>
+        </div>
+        <div class="row-actions">
+          <b class="income">+{{ item.valor | currency:'BRL' }}</b>
+          <button type="button" class="icon-action" (click)="abrirEdicaoRenda(item)" aria-label="Editar renda">
+            <i class="pi pi-pencil" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <p class="empty-state" *ngIf="!rendasDoMesSelecionado.length">Nenhum lan&ccedil;amento de renda neste m&ecirc;s.</p>
+    </article>
+  </section>
+
+  <section *ngIf="abaSelecionada === 'despesas'" class="tab-panel">
+    <div class="month-filter-row">
+      <label>
+        <span>M&ecirc;s</span>
+        <p-calendar [(ngModel)]="mesSelecionadoDate" view="month" dateFormat="MM yy" [showIcon]="true" appendTo="body" />
+      </label>
+    </div>
+
+    <div class="metric-grid">
+      <article class="metric-card">
+        <span>Despesas de {{ mesSelecionadoLabel }}</span>
+        <strong class="negative">{{ totalDespesasMesSelecionado | currency:'BRL' }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Lan&ccedil;amentos no m&ecirc;s</span>
+        <strong class="primary">{{ despesasDoMesSelecionado.length }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>M&eacute;dia mensal no per&iacute;odo</span>
+        <strong class="negative">{{ (resumosFiltrados.length ? totalDespesas / resumosFiltrados.length : 0) | currency:'BRL' }}</strong>
+      </article>
+    </div>
+
+    <article class="panel form-panel">
+      <h2>Lan&ccedil;ar despesa</h2>
+      <form class="inline-entry-form" [formGroup]="formDespesa" (ngSubmit)="adicionarDespesa()">
+        <label><span>Descri&ccedil;&atilde;o</span><input type="text" formControlName="descricao" placeholder="Ex: Cartao" /></label>
+        <label><span>Tipo</span><select formControlName="tipo"><option *ngFor="let tipo of despesaTipos" [ngValue]="tipo.value">{{ tipo.label }}</option></select></label>
+        <label><span>Valor (R$)</span><input type="number" formControlName="valor" min="0.01" step="0.01" placeholder="0.00" /></label>
+        <label><span>Data pagamento</span><input type="date" formControlName="dataPagamento" /></label>
+        <button type="submit" class="primary-button" [disabled]="salvandoDespesa">{{ salvandoDespesa ? 'Salvando...' : 'Adicionar despesa' }}</button>
+      </form>
+    </article>
+
+    <article class="panel">
+      <h2>Despesas m&ecirc;s a m&ecirc;s</h2>
+      <div class="month-list-grid">
+        <div class="month-mini-card" *ngFor="let item of resumosFiltrados">
+          <span>{{ formatarMesResumo(item) }}</span>
+          <strong class="negative">{{ item.valorDespesa | currency:'BRL' }}</strong>
+          <small>Saldo: {{ item.diferenca | currency:'BRL' }}</small>
+        </div>
+      </div>
+      <p class="empty-state" *ngIf="!resumosFiltrados.length">Nenhuma despesa encontrada no per&iacute;odo.</p>
+    </article>
+
+    <article class="panel">
+      <h2>Lan&ccedil;amentos de despesa</h2>
+      <div class="launch-row" *ngFor="let item of despesasDoMesSelecionado">
+        <div>
+          <span class="pill expense">DESPESA</span>
+          <strong>{{ item.descricao }}</strong>
+          <small>{{ item.dataPrevista | date:'dd/MM/yyyy':'UTC' }}</small>
+        </div>
+        <div class="row-actions">
+          <b>-{{ item.valor | currency:'BRL' }}</b>
+          <button type="button" class="icon-action" (click)="abrirEdicaoDespesa(item)" aria-label="Editar despesa">
+            <i class="pi pi-pencil" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <p class="empty-state" *ngIf="!despesasDoMesSelecionado.length">Nenhum lan&ccedil;amento de despesa neste m&ecirc;s.</p>
+    </article>
+  </section>
+
+  <section *ngIf="abaSelecionada === 'investimentos'" class="tab-panel">
+    <div class="metric-grid investment-metrics">
+      <article class="metric-card">
+        <span>Total investido</span>
+        <strong>{{ patrimonioInvestido | currency:'BRL' }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Valor atual</span>
+        <strong class="positive">{{ valorAtualInvestimentos | currency:'BRL' }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Rendimento/dia</span>
+        <strong class="primary">{{ rendimentoDia | currency:'BRL' }}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Rendimento/m&ecirc;s</span>
+        <strong class="primary">{{ rendimentoMes | currency:'BRL' }}</strong>
+      </article>
+    </div>
+
+    <article class="panel">
+      <h2>Lan&ccedil;ar investimento</h2>
+      <form class="investment-form" [formGroup]="formInvestimento" (ngSubmit)="adicionarInvestimento()">
+        <label>
+          <span>Descri&ccedil;&atilde;o</span>
+          <input type="text" formControlName="descricao" placeholder="Ex: CDB Banco X" />
+        </label>
+        <label>
+          <span>Tipo</span>
+          <select formControlName="tipo">
+            <option *ngFor="let tipo of investimentoTipos" [value]="tipo">{{ tipo }}</option>
+          </select>
+        </label>
+        <label>
+          <span>Valor aplicado (R$)</span>
+          <input type="number" formControlName="valorAplicado" min="0.01" step="0.01" placeholder="1000.00" />
+        </label>
+        <label>
+          <span>Taxa anual (%)</span>
+          <input type="number" formControlName="taxaAnual" min="0" step="0.01" placeholder="Ex: 12.5" />
+        </label>
+        <label>
+          <span>Data aplica&ccedil;&atilde;o</span>
+          <input type="date" formControlName="dataAplicacao" />
+        </label>
+        <button type="submit" class="primary-button" [disabled]="salvandoInvestimento">
+          {{ salvandoInvestimento ? 'Salvando...' : 'Adicionar investimento' }}
+        </button>
+      </form>
+    </article>
+
+    <article class="panel">
+      <h2>Meus investimentos ({{ investimentos.length }})</h2>
+      <div class="investment-row" *ngFor="let item of investimentos">
+        <div>
+          <strong>{{ item.descricao }}</strong>
+          <span>{{ item.tipo }} &bull; {{ item.dataAplicacao | date:'dd/MM/yyyy':'UTC' }}</span>
+        </div>
+        <div>
+          <strong>{{ item.valorAplicado | currency:'BRL' }}</strong>
+          <span>Atual: {{ calcularValorAtual(item) | currency:'BRL' }}</span>
+        </div>
+      </div>
+      <p class="empty-state" *ngIf="!investimentos.length">Nenhum investimento lan&ccedil;ado ainda</p>
+    </article>
+  </section>
+
+  <section *ngIf="abaSelecionada === 'simulacao'" class="tab-panel add-grid">
+    <article class="panel form-panel">
+      <h2>Simula&ccedil;&atilde;o</h2>
+      <form [formGroup]="formSimulacao">
+        <label><span>Valor inicial</span><input type="number" formControlName="valorInicial" /></label>
+        <label><span>Aporte mensal</span><input type="number" formControlName="aporteMensal" /></label>
+        <label><span>Taxa anual (%)</span><input type="number" formControlName="taxaAnual" /></label>
+        <label><span>Meses</span><input type="number" formControlName="meses" /></label>
+      </form>
+    </article>
+    <article class="panel result-panel">
+      <h2>Resultado projetado</h2>
+      <strong>{{ simulacaoResultado | currency:'BRL' }}</strong>
+    </article>
+  </section>
+
+  <section *ngIf="abaSelecionada === 'lancamentos'" class="tab-panel">
+    <article class="panel">
+      <h2>Lan&ccedil;amentos</h2>
+
+      <div class="launch-filters">
+        <label>
+          <span>Tipo</span>
+          <select [(ngModel)]="lancamentoFiltro">
+            <option value="TODOS">Todos</option>
+            <option value="RENDA">Rendas</option>
+            <option value="DESPESA">Despesas</option>
+            <option value="INVESTIMENTO">Investimentos</option>
+          </select>
+        </label>
+
+        <label>
+          <span>De</span>
+          <p-calendar [(ngModel)]="lancamentoDataInicio" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
+        </label>
+
+        <label>
+          <span>At&eacute;</span>
+          <p-calendar [(ngModel)]="lancamentoDataFim" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
+        </label>
+      </div>
+
+      <div class="launch-row" *ngFor="let item of lancamentosFiltrados">
+        <div>
+          <span class="pill" [class.expense]="item.tipoMovimento === 'DESPESA'" [class.investment-pill]="item.tipoMovimento === 'INVESTIMENTO'">
+            {{ item.tipoMovimento }}
+          </span>
+          <strong>{{ item.descricao }}</strong>
+          <small>{{ item.dataPrevista | date:'dd/MM/yyyy':'UTC' }}</small>
+        </div>
+        <b [class.income]="item.tipoMovimento !== 'DESPESA'" [class.investment]="item.tipoMovimento === 'INVESTIMENTO'">
+          {{ item.tipoMovimento === 'DESPESA' ? '-' : '+' }}{{ item.valor | currency:'BRL' }}
+        </b>
+      </div>
+      <p class="empty-state" *ngIf="!lancamentosFiltrados.length">Nenhum lan&ccedil;amento encontrado para o filtro.</p>
+    </article>
+  </section>
+
+  <section *ngIf="abaSelecionada === 'adicionar'" class="tab-panel add-grid">
+    <article class="panel form-panel">
+      <h2>Adicionar despesa</h2>
+      <form [formGroup]="formDespesa" (ngSubmit)="adicionarDespesa()">
+        <label><span>Descri&ccedil;&atilde;o</span><input type="text" formControlName="descricao" placeholder="Ex: Alimentacao" /></label>
+        <label><span>Valor</span><input type="number" formControlName="valor" min="0.01" step="0.01" placeholder="0.00" /></label>
+        <label><span>Tipo</span><select formControlName="tipo"><option *ngFor="let tipo of despesaTipos" [ngValue]="tipo.value">{{ tipo.label }}</option></select></label>
+        <label><span>Data pagamento</span><input type="date" formControlName="dataPagamento" /></label>
+        <button type="submit" class="primary-button" [disabled]="salvandoDespesa">{{ salvandoDespesa ? 'Salvando...' : 'Adicionar despesa' }}</button>
+      </form>
+    </article>
+
+    <article class="panel form-panel">
+      <h2>Adicionar renda</h2>
+      <form [formGroup]="formRenda" (ngSubmit)="adicionarRenda()">
+        <label><span>Descri&ccedil;&atilde;o</span><input type="text" formControlName="descricao" placeholder="Ex: Salario" /></label>
+        <label><span>Valor</span><input type="number" formControlName="valor" min="0.01" step="0.01" placeholder="0.00" /></label>
+        <label><span>Tipo</span><select formControlName="tipo"><option *ngFor="let tipo of rendaTipos" [ngValue]="tipo.value">{{ tipo.label }}</option></select></label>
+        <label><span>Data recebimento</span><input type="date" formControlName="dataRecebimento" /></label>
+        <button type="submit" class="primary-button" [disabled]="salvandoRenda">{{ salvandoRenda ? 'Salvando...' : 'Adicionar renda' }}</button>
+      </form>
+    </article>
+  </section>
+
+  <section class="panel mini-calendar-panel">
+    <div class="panel-heading-row">
+      <h2>Calend&aacute;rio de rendas</h2>
+      <span>Total por m&ecirc;s</span>
+    </div>
+    <div class="mini-calendar-grid" *ngIf="miniCalendarioRendas.length; else semCalendarioRenda">
+      <button
+        type="button"
+        *ngFor="let mes of miniCalendarioRendas"
+        [class.active]="mes.periodo === mesSelecionado"
+        (click)="selecionarMes(mes.periodo, 'rendas')"
+      >
+        <span>{{ mes.label }}</span>
+        <strong>{{ mes.total | currency:'BRL':'symbol':'1.0-0' }}</strong>
+      </button>
+    </div>
+    <ng-template #semCalendarioRenda>
+      <p class="empty-state">Nenhuma renda mensal encontrada.</p>
+    </ng-template>
+  </section>
+
+  <footer class="dashboard-footer">
+    Dashboard atualizado em {{ today | date:'dd/MM/yyyy':'UTC' }}
+  </footer>
+
+  <app-renda-form-dialog
+    [visible]="rendaDialogVisible"
+    [renda]="selectedRenda"
+    [mesReferencia]="mesSelecionado"
+    (visibleChange)="fecharDialogRenda($event)"
+    (saved)="onRendaDialogSaved()"
+  />
+
+  <app-despesa-form-dialog
+    [visible]="despesaDialogVisible"
+    [despesa]="selectedDespesa"
+    [mesReferencia]="mesSelecionado"
+    (visibleChange)="fecharDialogDespesa($event)"
+    (saved)="onDespesaDialogSaved()"
+  />
 </main>

@@ -17,6 +17,11 @@ export const routes: Routes = [
       import('./layout/authenticated-layout/authenticated-layout.component').then((m) => m.AuthenticatedLayoutComponent),
     children: [
       {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'analise'
+      },
+      {
         path: 'perfil',
         loadComponent: () => import('./features/perfil/perfil.component').then((m) => m.PerfilComponent)
       },
@@ -37,10 +42,10 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'rendas'
+    redirectTo: 'analise'
   },
   {
     path: '**',
-    redirectTo: 'rendas'
+    redirectTo: 'analise'
   }
 ];
