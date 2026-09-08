@@ -384,6 +384,37 @@ export class AnalisePageComponent implements OnInit {
       }));
   }
 
+  get evolucaoInvestimentos(): Array<{ periodo: string; label: string; total: number; acumulado: number }> {
+    let acumulado = 0;
+
+    return [...this.dados]
+      .sort((a, b) => this.toDate(String(a.dataReferencia)).getTime() - this.toDate(String(b.dataReferencia)).getTime())
+      .map((item) => {
+        const total = Number(item.valorInvestimento || 0);
+        acumulado += total;
+
+        return {
+          periodo: formatDate(this.toDate(String(item.dataReferencia)), 'yyyy-MM', 'pt-BR'),
+          label: this.formatMonth(String(item.dataReferencia || item.mes)),
+          total,
+          acumulado
+        };
+      });
+  }
+
+  get investimentoChartPoints(): Array<{ periodo: string; label: string; total: number; acumulado: number }> {
+    return this.evolucaoInvestimentos;
+  }
+
+  get investimentoChartMax(): number {
+    return Math.max(...this.investimentoChartPoints.flatMap((item) => [item.total, item.acumulado]), 1);
+  }
+
+  get investimentoChartAxis(): number[] {
+    const max = this.investimentoChartMax;
+    return [1, 0.75, 0.5, 0.25, 0].map((fraction) => Math.round(max * fraction));
+  }
+
   get despesasPorTipo(): Array<{ name: string; value: number; color: string }> {
     const colors = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#7c3aed', '#0891b2'];
     const grouped = this.despesasFiltradas.reduce<Record<string, number>>((acc, despesa) => {
@@ -647,8 +678,8 @@ export class AnalisePageComponent implements OnInit {
       });
   }
 
-  getBarHeight(value: number): number {
-    return Math.max((value / this.chartMax) * 100, value > 0 ? 2 : 0);
+  getBarHeight(value: number, max: number = this.chartMax): number {
+    return Math.max((value / max) * 100, value > 0 ? 2 : 0);
   }
 
   rendaSemInvestimento(item: DespesasXRenda): number {

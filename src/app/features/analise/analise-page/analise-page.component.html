@@ -422,7 +422,10 @@
     </article>
   </section>
 
-  <section class="panel mini-calendar-panel">
+  <section
+    class="panel mini-calendar-panel"
+    *ngIf="abaSelecionada !== 'investimentos' && abaSelecionada !== 'simulacao' && abaSelecionada !== 'lancamentos'"
+  >
     <div class="panel-heading-row">
       <h2>Calend&aacute;rio de rendas</h2>
       <span>Total por m&ecirc;s</span>
@@ -441,6 +444,34 @@
     <ng-template #semCalendarioRenda>
       <p class="empty-state">Nenhuma renda mensal encontrada.</p>
     </ng-template>
+  </section>
+
+  <section class="panel investment-chart-panel" *ngIf="abaSelecionada === 'investimentos'">
+    <div class="panel-heading-row">
+      <h2>Evolu&ccedil;&atilde;o dos investimentos</h2>
+      <span>Aplicado e acumulado por m&ecirc;s</span>
+    </div>
+    <div class="bar-chart investment-chart" *ngIf="investimentoChartPoints.length; else semEvolucaoInvestimento">
+      <div class="axis">
+        <span *ngFor="let tick of investimentoChartAxis">{{ tick | currency:'BRL':'symbol':'1.0-0' }}</span>
+      </div>
+      <div class="chart-columns investment-columns" [style.grid-template-columns]="'repeat(' + investimentoChartPoints.length + ', minmax(72px, 1fr))'">
+        <div class="chart-column" *ngFor="let point of investimentoChartPoints">
+          <div class="investment-bars">
+            <span class="investment-application-bar" [style.height.%]="getBarHeight(point.total, investimentoChartMax)"></span>
+            <span class="investment-accumulated-line" [style.bottom.%]="getBarHeight(point.acumulado, investimentoChartMax)"></span>
+          </div>
+          <small>{{ point.label }}</small>
+        </div>
+      </div>
+    </div>
+    <ng-template #semEvolucaoInvestimento>
+      <p class="empty-state">Nenhum investimento mensal encontrado.</p>
+    </ng-template>
+    <div class="legend">
+      <span><i class="legend-dot income-dot"></i>Aplicado</span>
+      <span><i class="legend-dot investment-line-dot"></i>Acumulado</span>
+    </div>
   </section>
 
   <footer class="dashboard-footer">
