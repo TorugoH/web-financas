@@ -137,6 +137,7 @@ export class AnalisePageComponent implements OnInit {
   dataInicio: Date | null = new Date(this.today.getFullYear(), this.today.getMonth(), 1);
   dataFim: Date | null = new Date(this.today.getFullYear(), this.today.getMonth() + 6, 0);
   mesSelecionado = formatDate(this.mesReferenciaAtual, 'yyyy-MM', 'pt-BR');
+  mesSelecionadoDateValue: Date | null = this.monthInputToDate(this.mesSelecionado);
   lancamentoFiltro: LancamentoFiltro = 'TODOS';
   lancamentoDataInicio: Date | null = this.startOfDay(this.today);
   lancamentoDataFim: Date | null = new Date(this.today.getFullYear(), this.today.getMonth(), this.today.getDate() + 30);
@@ -275,16 +276,6 @@ export class AnalisePageComponent implements OnInit {
 
   get mesSelecionadoLabel(): string {
     return this.formatFullMonth(this.monthInputToDate(this.mesSelecionado));
-  }
-
-  get mesSelecionadoDate(): Date {
-    return this.monthInputToDate(this.mesSelecionado);
-  }
-
-  set mesSelecionadoDate(value: Date | null) {
-    if (value) {
-      this.mesSelecionado = this.toInputMonth(value);
-    }
   }
 
   get mesesDisponiveis(): MesOption[] {
@@ -546,6 +537,7 @@ export class AnalisePageComponent implements OnInit {
 
   selecionarMes(periodo: string, aba: DashboardTab = 'rendas'): void {
     this.mesSelecionado = periodo;
+    this.mesSelecionadoDateValue = this.monthInputToDate(periodo);
     this.selecionarAba(aba);
   }
 
