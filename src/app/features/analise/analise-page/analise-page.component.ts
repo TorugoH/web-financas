@@ -330,10 +330,6 @@ export class AnalisePageComponent implements OnInit {
     return this.investimentos.reduce((sum, investimento) => sum + this.rendimentoPorPeriodo(investimento, 30), 0);
   }
 
-  get saldoPeriodo(): number {
-    return this.totalRendas + this.patrimonioInvestido - this.totalDespesas;
-  }
-
   get mesAtualResumo(): DespesasXRenda | null {
     return this.findResumoMensal(this.mesReferenciaAtual);
   }
@@ -735,6 +731,14 @@ export class AnalisePageComponent implements OnInit {
     return Math.max(Number(item.valorRenda || 0) - Number(item.valorInvestimento ?? 0), 0);
   }
 
+  saldoResumo(item: DespesasXRenda | null): number {
+    if (!item) {
+      return 0;
+    }
+
+    return this.rendaSemInvestimento(item) - Number(item.valorDespesa || 0);
+  }
+
   formatarMesResumo(item: DespesasXRenda): string {
     return this.formatFullMonth(this.toDate(String(item.dataReferencia)));
   }
@@ -855,6 +859,6 @@ export class AnalisePageComponent implements OnInit {
   }
 
   private getDespesaId(despesa: DespesaLancamento): number {
-    return despesa.despesaId ?? despesa.id;
+    return despesa.id;
   }
 }

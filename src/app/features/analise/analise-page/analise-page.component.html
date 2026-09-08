@@ -54,8 +54,8 @@
         </div>
         <div>
           <span>Saldo</span>
-          <strong [class.positive]="(mesAtualResumo?.diferenca || 0) >= 0" [class.negative]="(mesAtualResumo?.diferenca || 0) < 0">
-            {{ (mesAtualResumo?.diferenca || 0) | currency:'BRL' }}
+          <strong [class.positive]="saldoResumo(mesAtualResumo) >= 0" [class.negative]="saldoResumo(mesAtualResumo) < 0">
+            {{ saldoResumo(mesAtualResumo) | currency:'BRL' }}
           </strong>
         </div>
       </article>
@@ -72,8 +72,8 @@
         </div>
         <div>
           <span>Saldo previsto</span>
-          <strong [class.positive]="(mesSeguinteResumo?.diferenca || 0) >= 0" [class.negative]="(mesSeguinteResumo?.diferenca || 0) < 0">
-            {{ (mesSeguinteResumo?.diferenca || 0) | currency:'BRL' }}
+          <strong [class.positive]="saldoResumo(mesSeguinteResumo) >= 0" [class.negative]="saldoResumo(mesSeguinteResumo) < 0">
+            {{ saldoResumo(mesSeguinteResumo) | currency:'BRL' }}
           </strong>
         </div>
       </article>

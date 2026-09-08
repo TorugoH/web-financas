@@ -250,6 +250,6 @@ export class DespesaFormDialogComponent implements OnChanges {
   }
 
   private getDespesaId(despesa: DespesaLancamento): number {
-    return despesa.despesaId ?? despesa.id;
+    return despesa.id;
   }
 }
