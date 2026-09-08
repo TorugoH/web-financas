@@ -278,6 +278,14 @@ export class AnalisePageComponent implements OnInit {
     return this.formatFullMonth(this.monthInputToDate(this.mesSelecionado));
   }
 
+  get miniCalendarioTitulo(): string {
+    return this.abaSelecionada === 'despesas' ? 'Calendário de despesas' : 'Calendário de rendas';
+  }
+
+  get miniCalendarioSubtitulo(): string {
+    return 'Total por mês';
+  }
+
   get mesesDisponiveis(): MesOption[] {
     const meses = new Set<string>(this.mesesParaLancamentos());
 
@@ -371,7 +379,7 @@ export class AnalisePageComponent implements OnInit {
       .map((item) => ({
         periodo: formatDate(this.toDate(String(item.dataReferencia)), 'yyyy-MM', 'pt-BR'),
         label: this.formatMonth(String(item.dataReferencia || item.mes)),
-        total: this.rendaSemInvestimento(item)
+        total: this.abaSelecionada === 'despesas' ? Number(item.valorDespesa || 0) : this.rendaSemInvestimento(item)
       }));
   }
 
@@ -535,6 +543,51 @@ export class AnalisePageComponent implements OnInit {
     this.buscarDados();
   }
 
+  atualizarMesSelecionado(data: Date | null): void {
+    if (!data) {
+      return;
+    }
+
+    this.mesSelecionadoDateValue = data;
+    this.mesSelecionado = this.toInputMonth(data);
+  }
+
+  inativarRenda(lancamento: RendaLancamento): void {
+    if (!confirm(`Deseja excluir a renda "${lancamento.descricao}"?`)) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.rendaService.inativar(this.getRendaId(lancamento)).subscribe({
+      next: () => {
+        this.successMessage = 'Renda excluída.';
+        this.buscarDados();
+      },
+      error: () => {
+        this.errorMessage = 'Nao foi possivel excluir a renda.';
+      }
+    });
+  }
+
+  inativarDespesa(lancamento: DespesaLancamento): void {
+    if (!confirm(`Deseja excluir a despesa "${lancamento.descricao}"?`)) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.despesaService.inativar(this.getDespesaId(lancamento)).subscribe({
+      next: () => {
+        this.successMessage = 'Despesa excluída.';
+        this.buscarDados();
+      },
+      error: () => {
+        this.errorMessage = 'Nao foi possivel excluir a despesa.';
+      }
+    });
+  }
+
   selecionarMes(periodo: string, aba: DashboardTab = 'rendas'): void {
     this.mesSelecionado = periodo;
     this.mesSelecionadoDateValue = this.monthInputToDate(periodo);
@@ -674,7 +727,11 @@ export class AnalisePageComponent implements OnInit {
     return Math.max((value / max) * 100, value > 0 ? 2 : 0);
   }
 
-  rendaSemInvestimento(item: DespesasXRenda): number {
+  rendaSemInvestimento(item: DespesasXRenda | null): number {
+    if (!item) {
+      return 0;
+    }
+
     return Math.max(Number(item.valorRenda || 0) - Number(item.valorInvestimento ?? 0), 0);
   }
 
@@ -791,5 +848,13 @@ export class AnalisePageComponent implements OnInit {
         Number(item.valorAplicado.toFixed(2)) === Number(Number(renda.valor || 0).toFixed(2)) &&
         renda.descricao.includes(item.descricao)
     );
+  }
+
+  private getRendaId(renda: RendaLancamento): number {
+    return renda.rendaId ?? renda.id;
+  }
+
+  private getDespesaId(despesa: DespesaLancamento): number {
+    return despesa.despesaId ?? despesa.id;
   }
 }

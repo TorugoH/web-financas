@@ -46,7 +46,7 @@
         <h2>M&Ecirc;S ATUAL ({{ mesAtualLabel }})</h2>
         <div>
           <span>Renda</span>
-          <strong class="positive">{{ (mesAtualResumo?.valorRenda || 0) | currency:'BRL' }}</strong>
+          <strong class="positive">{{ (mesAtualResumo ? rendaSemInvestimento(mesAtualResumo) : 0) | currency:'BRL' }}</strong>
         </div>
         <div>
           <span>Despesa</span>
@@ -64,7 +64,7 @@
         <h2>M&Ecirc;S SEGUINTE ({{ mesSeguinteLabel }})</h2>
         <div>
           <span>Renda prevista</span>
-          <strong class="positive">{{ (mesSeguinteResumo?.valorRenda || 0) | currency:'BRL' }}</strong>
+          <strong class="positive">{{ (mesSeguinteResumo ? rendaSemInvestimento(mesSeguinteResumo) : 0) | currency:'BRL' }}</strong>
         </div>
         <div>
           <span>A pagar</span>
@@ -107,7 +107,7 @@
         <div class="chart-columns">
           <div class="chart-column" *ngFor="let point of chartPoints">
             <div class="column-bars">
-              <span class="income-bar" [style.height.%]="getBarHeight(point.renda + point.investimento)"></span>
+              <span class="income-bar" [style.height.%]="getBarHeight(point.renda)"></span>
               <span class="expense-bar" [style.height.%]="getBarHeight(point.despesa)"></span>
             </div>
             <small>{{ point.label }}</small>
@@ -147,7 +147,14 @@
     <div class="month-filter-row">
       <label>
         <span>M&ecirc;s</span>
-        <p-calendar [(ngModel)]="mesSelecionadoDateValue" view="month" dateFormat="MM yy" [showIcon]="true" appendTo="body" />
+        <p-calendar
+          [(ngModel)]="mesSelecionadoDateValue"
+          (ngModelChange)="atualizarMesSelecionado($event)"
+          view="month"
+          dateFormat="MM yy"
+          [showIcon]="true"
+          appendTo="body"
+        />
       </label>
     </div>
 
@@ -202,6 +209,9 @@
           <button type="button" class="icon-action" (click)="abrirEdicaoRenda(item)" aria-label="Editar renda">
             <i class="pi pi-pencil" aria-hidden="true"></i>
           </button>
+          <button type="button" class="icon-action danger" (click)="inativarRenda(item)" aria-label="Excluir renda">
+            <i class="pi pi-trash" aria-hidden="true"></i>
+          </button>
         </div>
       </div>
       <p class="empty-state" *ngIf="!rendasDoMesSelecionado.length">Nenhum lan&ccedil;amento de renda neste m&ecirc;s.</p>
@@ -212,7 +222,14 @@
     <div class="month-filter-row">
       <label>
         <span>M&ecirc;s</span>
-        <p-calendar [(ngModel)]="mesSelecionadoDateValue" view="month" dateFormat="MM yy" [showIcon]="true" appendTo="body" />
+        <p-calendar
+          [(ngModel)]="mesSelecionadoDateValue"
+          (ngModelChange)="atualizarMesSelecionado($event)"
+          view="month"
+          dateFormat="MM yy"
+          [showIcon]="true"
+          appendTo="body"
+        />
       </label>
     </div>
 
@@ -266,6 +283,9 @@
           <b>-{{ item.valor | currency:'BRL' }}</b>
           <button type="button" class="icon-action" (click)="abrirEdicaoDespesa(item)" aria-label="Editar despesa">
             <i class="pi pi-pencil" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="icon-action danger" (click)="inativarDespesa(item)" aria-label="Excluir despesa">
+            <i class="pi pi-trash" aria-hidden="true"></i>
           </button>
         </div>
       </div>
@@ -422,13 +442,10 @@
     </article>
   </section>
 
-  <section
-    class="panel mini-calendar-panel"
-    *ngIf="abaSelecionada !== 'investimentos' && abaSelecionada !== 'simulacao' && abaSelecionada !== 'lancamentos'"
-  >
+  <section class="panel mini-calendar-panel" *ngIf="abaSelecionada === 'rendas' || abaSelecionada === 'despesas'">
     <div class="panel-heading-row">
-      <h2>Calend&aacute;rio de rendas</h2>
-      <span>Total por m&ecirc;s</span>
+      <h2>{{ miniCalendarioTitulo }}</h2>
+      <span>{{ miniCalendarioSubtitulo }}</span>
     </div>
     <div class="mini-calendar-grid" *ngIf="miniCalendarioRendas.length; else semCalendarioRenda">
       <button
