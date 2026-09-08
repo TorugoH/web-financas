@@ -55,6 +55,14 @@ interface Investimento {
   origem: 'api' | 'local';
 }
 
+interface InvestimentoChartPoint {
+  periodo: string;
+  label: string;
+  aplicado: number;
+  atual: number;
+  acumulado: number;
+}
+
 interface DespesaFormValue {
   descricao: FormControl<string>;
   valor: FormControl<number | null>;
@@ -136,6 +144,8 @@ export class AnalisePageComponent implements OnInit {
   diaCorte = 10;
   dataInicio: Date | null = new Date(this.today.getFullYear(), this.today.getMonth(), 1);
   dataFim: Date | null = new Date(this.today.getFullYear(), this.today.getMonth() + 6, 0);
+  investimentoDataInicio: Date | null = new Date(this.today.getFullYear(), this.today.getMonth() - 6, 1);
+  investimentoDataFim: Date | null = new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0);
   mesSelecionado = formatDate(this.mesReferenciaAtual, 'yyyy-MM', 'pt-BR');
   mesSelecionadoDateValue: Date | null = this.monthInputToDate(this.mesSelecionado);
   lancamentoFiltro: LancamentoFiltro = 'TODOS';
@@ -315,19 +325,19 @@ export class AnalisePageComponent implements OnInit {
   }
 
   get patrimonioInvestido(): number {
-    return this.investimentos.reduce((sum, investimento) => sum + investimento.valorAplicado, 0);
+    return this.investimentosFiltrados.reduce((sum, investimento) => sum + investimento.valorAplicado, 0);
   }
 
   get valorAtualInvestimentos(): number {
-    return this.investimentos.reduce((sum, investimento) => sum + this.calcularValorAtual(investimento), 0);
+    return this.investimentosFiltrados.reduce((sum, investimento) => sum + this.calcularValorAtual(investimento), 0);
   }
 
   get rendimentoDia(): number {
-    return this.investimentos.reduce((sum, investimento) => sum + this.rendimentoPorPeriodo(investimento, 1), 0);
+    return this.investimentosFiltrados.reduce((sum, investimento) => sum + this.rendimentoPorPeriodo(investimento, 1), 0);
   }
 
   get rendimentoMes(): number {
-    return this.investimentos.reduce((sum, investimento) => sum + this.rendimentoPorPeriodo(investimento, 30), 0);
+    return this.investimentosFiltrados.reduce((sum, investimento) => sum + this.rendimentoPorPeriodo(investimento, 30), 0);
   }
 
   get mesAtualResumo(): DespesasXRenda | null {
@@ -397,17 +407,58 @@ export class AnalisePageComponent implements OnInit {
       });
   }
 
-  get investimentoChartPoints(): Array<{ periodo: string; label: string; total: number; acumulado: number }> {
-    return this.evolucaoInvestimentos;
+  get investimentosFiltrados(): Investimento[] {
+    return this.investimentos.filter((investimento) =>
+      this.isDentroIntervalo(investimento.dataAplicacao, this.investimentoDataInicio, this.investimentoDataFim)
+    );
+  }
+
+  get investimentoChartPoints(): InvestimentoChartPoint[] {
+    const agrupados = new Map<string, { label: string; aplicado: number; atual: number }>();
+
+    this.investimentosFiltrados
+      .sort((a, b) => this.toDate(a.dataAplicacao).getTime() - this.toDate(b.dataAplicacao).getTime())
+      .forEach((investimento) => {
+        const periodo = formatDate(this.toDate(investimento.dataAplicacao), 'yyyy-MM', 'pt-BR');
+        const atual = this.calcularValorAtual(investimento);
+        const existente = agrupados.get(periodo) ?? {
+          label: this.formatMonth(investimento.dataAplicacao),
+          aplicado: 0,
+          atual: 0
+        };
+
+        existente.aplicado += investimento.valorAplicado;
+        existente.atual += atual;
+        agrupados.set(periodo, existente);
+      });
+
+    let acumulado = 0;
+
+    return [...agrupados.entries()]
+      .sort(([a], [b]) => this.monthInputToDate(a).getTime() - this.monthInputToDate(b).getTime())
+      .map(([periodo, item]) => {
+        acumulado += item.aplicado;
+        return {
+          periodo,
+          label: item.label,
+          aplicado: item.aplicado,
+          atual: item.atual,
+          acumulado
+        };
+      });
   }
 
   get investimentoChartMax(): number {
-    return Math.max(...this.investimentoChartPoints.flatMap((item) => [item.total, item.acumulado]), 1);
+    return Math.max(...this.investimentoChartPoints.flatMap((item) => [item.aplicado, item.atual, item.acumulado]), 1);
   }
 
   get investimentoChartAxis(): number[] {
     const max = this.investimentoChartMax;
     return [1, 0.75, 0.5, 0.25, 0].map((fraction) => Math.round(max * fraction));
+  }
+
+  get investimentoTemTaxaAusente(): boolean {
+    return this.investimentosFiltrados.some((item) => item.taxaAnual === 0);
   }
 
   get despesasPorTipo(): Array<{ name: string; value: number; color: string }> {
@@ -792,6 +843,13 @@ export class AnalisePageComponent implements OnInit {
 
   private isMesmoMes(value: string, mes: string): boolean {
     return Boolean(value) && value.startsWith(mes);
+  }
+
+  private isDentroIntervalo(value: string, inicio: Date | null, fim: Date | null): boolean {
+    const data = this.toDate(value);
+    const dataInicio = this.startOfDay(inicio ?? this.today);
+    const dataFim = this.startOfDay(fim ?? this.today);
+    return data >= dataInicio && data <= dataFim;
   }
 
   private parseInputDate(value: string): Date {

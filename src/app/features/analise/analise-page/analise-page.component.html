@@ -294,6 +294,17 @@
   </section>
 
   <section *ngIf="abaSelecionada === 'investimentos'" class="tab-panel">
+    <div class="month-filter-row investment-filter-row">
+      <label>
+        <span>De</span>
+        <p-calendar [(ngModel)]="investimentoDataInicio" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
+      </label>
+      <label>
+        <span>At&eacute;</span>
+        <p-calendar [(ngModel)]="investimentoDataFim" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body" />
+      </label>
+    </div>
+
     <div class="metric-grid investment-metrics">
       <article class="metric-card">
         <span>Total investido</span>
@@ -312,6 +323,10 @@
         <strong class="primary">{{ rendimentoMes | currency:'BRL' }}</strong>
       </article>
     </div>
+
+    <p class="empty-state investment-note" *ngIf="investimentoTemTaxaAusente">
+      Investimentos vindos da API n&atilde;o trazem taxa anual; por isso o rendimento fica zerado nesses itens.
+    </p>
 
     <article class="panel">
       <h2>Lan&ccedil;ar investimento</h2>
@@ -475,8 +490,8 @@
       <div class="chart-columns investment-columns" [style.grid-template-columns]="'repeat(' + investimentoChartPoints.length + ', minmax(72px, 1fr))'">
         <div class="chart-column" *ngFor="let point of investimentoChartPoints">
           <div class="investment-bars">
-            <span class="investment-application-bar" [style.height.%]="getBarHeight(point.total, investimentoChartMax)"></span>
-            <span class="investment-accumulated-line" [style.bottom.%]="getBarHeight(point.acumulado, investimentoChartMax)"></span>
+            <span class="investment-application-bar" [style.height.%]="getBarHeight(point.aplicado, investimentoChartMax)"></span>
+            <span class="investment-current-bar" [style.height.%]="getBarHeight(point.atual, investimentoChartMax)"></span>
           </div>
           <small>{{ point.label }}</small>
         </div>
@@ -487,7 +502,7 @@
     </ng-template>
     <div class="legend">
       <span><i class="legend-dot income-dot"></i>Aplicado</span>
-      <span><i class="legend-dot investment-line-dot"></i>Acumulado</span>
+      <span><i class="legend-dot investment-line-dot"></i>Valor atual</span>
     </div>
   </section>
 
