@@ -1,1 +1,47 @@
+.form-panel .recurrence-option {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  grid-column: 1 / -1;
+  margin-bottom: 6px;
+}
 
+.form-panel .recurrence-option input {
+  accent-color: var(--app-accent);
+  flex: 0 0 18px;
+  height: 18px;
+  min-height: 18px;
+  padding: 0;
+  width: 18px;
+}
+
+.form-panel .recurrence-option span {
+  color: var(--app-text);
+  line-height: 1.5;
+}
+
+.recurrence-option small {
+  color: var(--app-muted);
+  display: block;
+}
+
+.inline-entry-form > label {
+  min-width: 0;
+}
+
+.recurring-entry-form {
+  grid-template-columns: 2fr repeat(4, minmax(0, 1fr)) auto;
+}
+
+@media (max-width: 1100px) {
+  .recurring-entry-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .recurring-entry-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

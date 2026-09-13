@@ -19,6 +19,7 @@ interface TipoOption {
 }
 
 interface DespesaFormValue {
+  quantidadeMeses: FormControl<number | null>;
   descricao: FormControl<string>;
   valor: FormControl<number | null>;
   tipo: FormControl<DespesaTipo>;
@@ -62,6 +63,7 @@ export class DespesaFormDialogComponent implements OnChanges {
   ];
 
   readonly form = new FormGroup<DespesaFormValue>({
+    quantidadeMeses: new FormControl<number | null>(null, [Validators.required, Validators.min(1), Validators.max(120), Validators.pattern(/^\d+$/)]),
     descricao: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     valor: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
     tipo: new FormControl<DespesaTipo>('ALIMENTACAO', { nonNullable: true, validators: [Validators.required] }),
@@ -77,6 +79,10 @@ export class DespesaFormDialogComponent implements OnChanges {
 
   get editing(): boolean {
     return Boolean(this.despesa);
+  }
+
+  get precisaQuantidadeMeses(): boolean {
+    return this.form.controls.recorrente.value && !this.despesa?.recorrente;
   }
 
   constructor(private readonly despesaService: DespesaService) {
@@ -195,6 +201,11 @@ export class DespesaFormDialogComponent implements OnChanges {
   }
 
   private updateConditionalValidators(recorrente: boolean): void {
+    const quantidade = this.form.controls.quantidadeMeses;
+    quantidade.setValidators(this.precisaQuantidadeMeses
+      ? [Validators.required, Validators.min(1), Validators.max(120), Validators.pattern(/^\d+$/)]
+      : []);
+    quantidade.updateValueAndValidity({ emitEvent: false });
     const dia = this.form.controls.diaPagamento;
     const data = this.form.controls.dataPagamento;
 
@@ -218,6 +229,10 @@ export class DespesaFormDialogComponent implements OnChanges {
       tipo: value.tipo,
       recorrente: value.recorrente
     };
+
+    if (this.precisaQuantidadeMeses) {
+      payload.quantidadeMeses = value.quantidadeMeses!;
+    }
 
     if (value.recorrente) {
       payload.diaPagamento = value.diaPagamento ?? 1;

@@ -19,6 +19,7 @@ interface TipoOption {
 }
 
 interface RendaFormValue {
+  quantidadeMeses: FormControl<number | null>;
   descricao: FormControl<string>;
   valor: FormControl<number | null>;
   tipo: FormControl<RendaTipo>;
@@ -59,6 +60,7 @@ export class RendaFormDialogComponent implements OnChanges {
   ];
 
   readonly form = new FormGroup<RendaFormValue>({
+    quantidadeMeses: new FormControl<number | null>(null, [Validators.required, Validators.min(1), Validators.max(120), Validators.pattern(/^\d+$/)]),
     descricao: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     valor: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
     tipo: new FormControl<RendaTipo>('SALARIO', { nonNullable: true, validators: [Validators.required] }),
@@ -74,6 +76,10 @@ export class RendaFormDialogComponent implements OnChanges {
 
   get editing(): boolean {
     return Boolean(this.renda);
+  }
+
+  get precisaQuantidadeMeses(): boolean {
+    return this.form.controls.recorrente.value && !this.renda?.recorrente;
   }
 
   constructor(private readonly rendaService: RendaService) {
@@ -192,6 +198,11 @@ export class RendaFormDialogComponent implements OnChanges {
   }
 
   private updateConditionalValidators(recorrente: boolean): void {
+    const quantidade = this.form.controls.quantidadeMeses;
+    quantidade.setValidators(this.precisaQuantidadeMeses
+      ? [Validators.required, Validators.min(1), Validators.max(120), Validators.pattern(/^\d+$/)]
+      : []);
+    quantidade.updateValueAndValidity({ emitEvent: false });
     const dia = this.form.controls.diaRecebimento;
     const data = this.form.controls.dataRecebimento;
 
@@ -215,6 +226,10 @@ export class RendaFormDialogComponent implements OnChanges {
       tipo: value.tipo,
       recorrente: value.recorrente
     };
+
+    if (this.precisaQuantidadeMeses) {
+      payload.quantidadeMeses = value.quantidadeMeses!;
+    }
 
     if (value.recorrente) {
       payload.diaRecebimento = value.diaRecebimento ?? 1;

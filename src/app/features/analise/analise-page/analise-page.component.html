@@ -175,11 +175,17 @@
 
     <article class="panel form-panel">
       <h2>Lan&ccedil;ar renda</h2>
-      <form class="inline-entry-form" [formGroup]="formRenda" (ngSubmit)="adicionarRenda()">
+      <form class="inline-entry-form" [class.recurring-entry-form]="formRenda.controls.recorrente.value" [formGroup]="formRenda" (ngSubmit)="adicionarRenda()">
+        <label class="recurrence-option">
+          <input type="checkbox" formControlName="recorrente" (change)="atualizarRecorrenciaRenda()" />
+          <span>Repetir mensalmente <small>{{ formRenda.controls.recorrente.value ? 'Quantidade inclui o mês atual' : 'Somente no mês da data informada' }}</small></span>
+        </label>
         <label><span>Descri&ccedil;&atilde;o</span><input type="text" formControlName="descricao" placeholder="Ex: Salario" /></label>
         <label><span>Tipo</span><select formControlName="tipo"><option *ngFor="let tipo of rendaTipos" [ngValue]="tipo.value">{{ tipo.label }}</option></select></label>
         <label><span>Valor (R$)</span><input type="number" formControlName="valor" min="0.01" step="0.01" placeholder="0.00" /></label>
-        <label><span>Data recebimento</span><input type="date" formControlName="dataRecebimento" /></label>
+        <label *ngIf="!formRenda.controls.recorrente.value"><span>Data recebimento</span><input type="date" formControlName="dataRecebimento" /></label>
+        <label *ngIf="formRenda.controls.recorrente.value"><span>Dia do recebimento</span><input type="number" formControlName="diaRecebimento" min="1" max="31" step="1" /><small class="field-error" *ngIf="formRenda.controls.diaRecebimento.touched && formRenda.controls.diaRecebimento.invalid">Informe um dia inteiro entre 1 e 31.</small></label>
+        <label *ngIf="formRenda.controls.recorrente.value"><span>Quantidade de meses</span><input type="number" formControlName="quantidadeMeses" min="1" max="120" step="1" placeholder="Ex: 6" /><small class="field-error" *ngIf="formRenda.controls.quantidadeMeses.touched && formRenda.controls.quantidadeMeses.invalid">Informe de 1 a 120 meses inteiros.</small></label>
         <button type="submit" class="primary-button" [disabled]="salvandoRenda">{{ salvandoRenda ? 'Salvando...' : 'Adicionar renda' }}</button>
       </form>
     </article>
@@ -250,11 +256,17 @@
 
     <article class="panel form-panel">
       <h2>Lan&ccedil;ar despesa</h2>
-      <form class="inline-entry-form" [formGroup]="formDespesa" (ngSubmit)="adicionarDespesa()">
+      <form class="inline-entry-form" [class.recurring-entry-form]="formDespesa.controls.recorrente.value" [formGroup]="formDespesa" (ngSubmit)="adicionarDespesa()">
+        <label class="recurrence-option">
+          <input type="checkbox" formControlName="recorrente" (change)="atualizarRecorrenciaDespesa()" />
+          <span>Repetir mensalmente <small>{{ formDespesa.controls.recorrente.value ? 'Quantidade inclui o mês atual' : 'Somente no mês da data informada' }}</small></span>
+        </label>
         <label><span>Descri&ccedil;&atilde;o</span><input type="text" formControlName="descricao" placeholder="Ex: Cartao" /></label>
         <label><span>Tipo</span><select formControlName="tipo"><option *ngFor="let tipo of despesaTipos" [ngValue]="tipo.value">{{ tipo.label }}</option></select></label>
         <label><span>Valor (R$)</span><input type="number" formControlName="valor" min="0.01" step="0.01" placeholder="0.00" /></label>
-        <label><span>Data pagamento</span><input type="date" formControlName="dataPagamento" /></label>
+        <label *ngIf="!formDespesa.controls.recorrente.value"><span>Data pagamento</span><input type="date" formControlName="dataPagamento" /></label>
+        <label *ngIf="formDespesa.controls.recorrente.value"><span>Dia do pagamento</span><input type="number" formControlName="diaPagamento" min="1" max="31" step="1" /><small class="field-error" *ngIf="formDespesa.controls.diaPagamento.touched && formDespesa.controls.diaPagamento.invalid">Informe um dia inteiro entre 1 e 31.</small></label>
+        <label *ngIf="formDespesa.controls.recorrente.value"><span>Quantidade de meses</span><input type="number" formControlName="quantidadeMeses" min="1" max="120" step="1" placeholder="Ex: 6" /><small class="field-error" *ngIf="formDespesa.controls.quantidadeMeses.touched && formDespesa.controls.quantidadeMeses.invalid">Informe de 1 a 120 meses inteiros.</small></label>
         <button type="submit" class="primary-button" [disabled]="salvandoDespesa">{{ salvandoDespesa ? 'Salvando...' : 'Adicionar despesa' }}</button>
       </form>
     </article>
@@ -375,20 +387,8 @@
     </article>
   </section>
 
-  <section *ngIf="abaSelecionada === 'simulacao'" class="tab-panel add-grid">
-    <article class="panel form-panel">
-      <h2>Simula&ccedil;&atilde;o</h2>
-      <form [formGroup]="formSimulacao">
-        <label><span>Valor inicial</span><input type="number" formControlName="valorInicial" /></label>
-        <label><span>Aporte mensal</span><input type="number" formControlName="aporteMensal" /></label>
-        <label><span>Taxa anual (%)</span><input type="number" formControlName="taxaAnual" /></label>
-        <label><span>Meses</span><input type="number" formControlName="meses" /></label>
-      </form>
-    </article>
-    <article class="panel result-panel">
-      <h2>Resultado projetado</h2>
-      <strong>{{ simulacaoResultado | currency:'BRL' }}</strong>
-    </article>
+  <section *ngIf="abaSelecionada === 'simulacao'" class="tab-panel">
+    <app-simulacoes />
   </section>
 
   <section *ngIf="abaSelecionada === 'lancamentos'" class="tab-panel">
@@ -437,10 +437,16 @@
     <article class="panel form-panel">
       <h2>Adicionar despesa</h2>
       <form [formGroup]="formDespesa" (ngSubmit)="adicionarDespesa()">
+        <label class="recurrence-option">
+          <input type="checkbox" formControlName="recorrente" (change)="atualizarRecorrenciaDespesa()" />
+          <span>Repetir mensalmente <small>{{ formDespesa.controls.recorrente.value ? 'Quantidade inclui o mês atual' : 'Somente no mês da data informada' }}</small></span>
+        </label>
         <label><span>Descri&ccedil;&atilde;o</span><input type="text" formControlName="descricao" placeholder="Ex: Alimentacao" /></label>
         <label><span>Valor</span><input type="number" formControlName="valor" min="0.01" step="0.01" placeholder="0.00" /></label>
         <label><span>Tipo</span><select formControlName="tipo"><option *ngFor="let tipo of despesaTipos" [ngValue]="tipo.value">{{ tipo.label }}</option></select></label>
-        <label><span>Data pagamento</span><input type="date" formControlName="dataPagamento" /></label>
+        <label *ngIf="!formDespesa.controls.recorrente.value"><span>Data pagamento</span><input type="date" formControlName="dataPagamento" /></label>
+        <label *ngIf="formDespesa.controls.recorrente.value"><span>Dia do pagamento</span><input type="number" formControlName="diaPagamento" min="1" max="31" step="1" /><small class="field-error" *ngIf="formDespesa.controls.diaPagamento.touched && formDespesa.controls.diaPagamento.invalid">Informe um dia inteiro entre 1 e 31.</small></label>
+        <label *ngIf="formDespesa.controls.recorrente.value"><span>Quantidade de meses</span><input type="number" formControlName="quantidadeMeses" min="1" max="120" step="1" placeholder="Ex: 6" /><small class="field-error" *ngIf="formDespesa.controls.quantidadeMeses.touched && formDespesa.controls.quantidadeMeses.invalid">Informe de 1 a 120 meses inteiros.</small></label>
         <button type="submit" class="primary-button" [disabled]="salvandoDespesa">{{ salvandoDespesa ? 'Salvando...' : 'Adicionar despesa' }}</button>
       </form>
     </article>
@@ -448,10 +454,16 @@
     <article class="panel form-panel">
       <h2>Adicionar renda</h2>
       <form [formGroup]="formRenda" (ngSubmit)="adicionarRenda()">
+        <label class="recurrence-option">
+          <input type="checkbox" formControlName="recorrente" (change)="atualizarRecorrenciaRenda()" />
+          <span>Repetir mensalmente <small>{{ formRenda.controls.recorrente.value ? 'Quantidade inclui o mês atual' : 'Somente no mês da data informada' }}</small></span>
+        </label>
         <label><span>Descri&ccedil;&atilde;o</span><input type="text" formControlName="descricao" placeholder="Ex: Salario" /></label>
         <label><span>Valor</span><input type="number" formControlName="valor" min="0.01" step="0.01" placeholder="0.00" /></label>
         <label><span>Tipo</span><select formControlName="tipo"><option *ngFor="let tipo of rendaTipos" [ngValue]="tipo.value">{{ tipo.label }}</option></select></label>
-        <label><span>Data recebimento</span><input type="date" formControlName="dataRecebimento" /></label>
+        <label *ngIf="!formRenda.controls.recorrente.value"><span>Data recebimento</span><input type="date" formControlName="dataRecebimento" /></label>
+        <label *ngIf="formRenda.controls.recorrente.value"><span>Dia do recebimento</span><input type="number" formControlName="diaRecebimento" min="1" max="31" step="1" /><small class="field-error" *ngIf="formRenda.controls.diaRecebimento.touched && formRenda.controls.diaRecebimento.invalid">Informe um dia inteiro entre 1 e 31.</small></label>
+        <label *ngIf="formRenda.controls.recorrente.value"><span>Quantidade de meses</span><input type="number" formControlName="quantidadeMeses" min="1" max="120" step="1" placeholder="Ex: 6" /><small class="field-error" *ngIf="formRenda.controls.quantidadeMeses.touched && formRenda.controls.quantidadeMeses.invalid">Informe de 1 a 120 meses inteiros.</small></label>
         <button type="submit" class="primary-button" [disabled]="salvandoRenda">{{ salvandoRenda ? 'Salvando...' : 'Adicionar renda' }}</button>
       </form>
     </article>

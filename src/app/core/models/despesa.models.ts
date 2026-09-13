@@ -2,6 +2,7 @@ export type DespesaTipo = 'ALIMENTACAO' | 'TRANSPORTE' | 'MORADIA' | 'LAZER' | '
 export type DespesaValorEscopo = 'APENAS_ESTE_MES' | 'ESTE_E_FUTUROS';
 
 export interface DespesaRequest {
+  quantidadeMeses?: number;
   descricao: string;
   valor: number;
   tipo: DespesaTipo;

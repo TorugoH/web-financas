@@ -1,0 +1,122 @@
+<nav class="simulation-tabs" aria-label="Tipo de simulacao">
+  <button *ngFor="let item of modos" type="button" [class.active]="modo === item.valor"
+    [attr.aria-pressed]="modo === item.valor" (click)="selecionar(item.valor)">
+    <i class="pi" [ngClass]="item.icone" aria-hidden="true"></i>{{ item.label }}
+  </button>
+</nav>
+
+<div *ngIf="modo !== 'investimentos'" class="table-status" [class.warning]="erro || (tabelas && tabelas.status !== 'ATUALIZADA')" role="status">
+  <div>
+    <strong>Refer&ecirc;ncia: janeiro a dezembro de 2026</strong>
+    <span *ngIf="carregando">Consultando INSS e Receita Federal...</span>
+    <span *ngIf="erro">{{ erro }}</span>
+    <span *ngIf="tabelas && !carregando">{{ tabelas.mensagem }}
+      <ng-container *ngIf="tabelas.consultadoEm"> Consulta: {{ tabelas.consultadoEm | date:'dd/MM/yyyy HH:mm' }}.</ng-container>
+    </span>
+  </div>
+  <button type="button" class="icon-button" title="Consultar tabelas" aria-label="Consultar tabelas" [disabled]="carregando" (click)="consultarTabelas()">
+    <i class="pi pi-refresh" [class.pi-spin]="carregando" aria-hidden="true"></i>
+  </button>
+</div>
+
+<div class="simulation-grid">
+  <section class="simulation-inputs">
+    <h2>{{ modo === 'salario' ? 'Salario liquido' : modo === 'rescisao' ? 'Rescisao CLT' : modo === 'ferias' ? 'Ferias' : 'Projecao de investimentos' }}</h2>
+    <form *ngIf="modo === 'salario'" [formGroup]="salario" class="fields">
+<label><span>Sal&aacute;rio base (R$)</span><input type="number" formControlName="salario" min="0" step="0.01" /></label>
+<label><span>Adicionais tribut&aacute;veis (R$)</span><input type="number" formControlName="adicionais" min="0" step="0.01" /></label>
+<label><span>Dependentes no IRRF</span><input type="number" formControlName="dependentes" min="0" max="30" step="1" /></label>
+<label><span>Vale-transporte (%)</span><input type="number" formControlName="vtPercentual" min="0" max="6" step="0.1" /></label>
+<label><span>Custo do transporte (R$, opcional)</span><input type="number" formControlName="custoVt" min="0" placeholder="Sem limite informado" step="0.01" /></label>
+<label><span>Outros descontos (R$)</span><input type="number" formControlName="outrosDescontos" min="0" step="0.01" /></label>
+</form>
+    <form *ngIf="modo === 'rescisao'" [formGroup]="rescisao" class="fields">
+<label class="full"><span>Motivo da rescis&atilde;o</span><select formControlName="motivo">
+<option value="SEM_JUSTA_CAUSA">Demiss&atilde;o sem justa causa</option><option value="PEDIDO">Pedido de demiss&atilde;o</option>
+<option value="ACORDO">Acordo entre as partes</option><option value="JUSTA_CAUSA">Demiss&atilde;o por justa causa</option>
+</select></label>
+<label><span>Sal&aacute;rio base (R$)</span><input type="number" formControlName="salario" min="0" step="0.01" /></label>
+<label><span>M&eacute;dia de adicionais (R$)</span><input type="number" formControlName="medias" min="0" step="0.01" /></label>
+<label><span>Dias de saldo de sal&aacute;rio</span><input type="number" formControlName="diasSaldo" min="0" max="30" step="1" /></label>
+<label><span>Dependentes no IRRF</span><input type="number" formControlName="dependentes" min="0" max="30" step="1" /></label>
+<ng-container *ngIf="rescisao.controls.motivo.value !== 'JUSTA_CAUSA'">
+<label><span>13&ordm; proporcional (avos, de 0 a 12)</span><input type="number" formControlName="avosDecimo" min="0" max="12" step="1" /></label>
+<label><span>F&eacute;rias proporcionais (avos, de 0 a 12)</span><input type="number" formControlName="avosFerias" min="0" max="12" step="1" /></label>
+<label><span>Aviso pr&eacute;vio</span><select formControlName="aviso">
+<option *ngIf="rescisao.controls.motivo.value !== 'PEDIDO'" value="INDENIZADO">Indenizado</option>
+<option value="TRABALHADO">Trabalhado (j&aacute; inclu&iacute;do no saldo)</option>
+<option *ngIf="rescisao.controls.motivo.value === 'PEDIDO'" value="DISPENSADO">Dispensado, sem desconto</option>
+<option *ngIf="rescisao.controls.motivo.value === 'PEDIDO'" value="DESCONTADO">N&atilde;o cumprido, com desconto</option>
+</select></label>
+<label><span>Anos completos na empresa</span><input type="number" formControlName="anosCompletos" min="0" max="80" step="1" /></label>
+</ng-container>
+<label><span>F&eacute;rias integrais a receber (per&iacute;odos)</span><input type="number" formControlName="periodosIntegrais" min="0" max="10" step="1" /></label>
+<label><span>F&eacute;rias em dobro (per&iacute;odos distintos)</span><input type="number" formControlName="periodosDobro" min="0" max="10" step="1" /></label>
+<label *ngIf="rescisao.controls.motivo.value === 'SEM_JUSTA_CAUSA' || rescisao.controls.motivo.value === 'ACORDO'">
+<span>Saldo FGTS para fins rescis&oacute;rios (R$)</span><input type="number" formControlName="saldoFgts" min="0" step="0.01" /></label>
+<label><span>Adiantamentos e outros descontos (R$)</span><input type="number" formControlName="outrosDescontos" min="0" step="0.01" /></label>
+</form>
+    <form *ngIf="modo === 'ferias'" [formGroup]="ferias" class="fields">
+<label><span>Sal&aacute;rio base (R$)</span><input type="number" formControlName="salario" min="0" step="0.01" /></label>
+<label><span>M&eacute;dia de adicionais (R$)</span><input type="number" formControlName="medias" min="0" step="0.01" /></label>
+<label><span>Dias de f&eacute;rias gozadas</span><input type="number" formControlName="dias" min="1" max="30" step="1" /></label>
+<label><span>Dependentes no IRRF</span><input type="number" formControlName="dependentes" min="0" max="30" step="1" /></label>
+<label><span>Outros descontos (R$)</span><input type="number" formControlName="outrosDescontos" min="0" step="0.01" /></label>
+<label class="check"><input type="checkbox" formControlName="adiantamentoDecimo" /><span>Adiantamento de 50% do 13&ordm;</span></label>
+</form>
+    <form *ngIf="modo === 'investimentos'" [formGroup]="investimentos" class="fields">
+<label><span>Valor inicial (R$)</span><input type="number" formControlName="inicial" min="0" step="0.01" /></label>
+<label><span>Aporte mensal (R$)</span><input type="number" formControlName="aporte" min="0" step="0.01" /></label>
+<label><span>Taxa anual (%)</span><input type="number" formControlName="taxa" min="0" max="100" step="0.01" /></label>
+<label><span>Meses</span><input type="number" formControlName="meses" min="1" max="600" step="1" /></label>
+</form>
+    <p class="validation" *ngIf="form.invalid" role="alert">Preencha os campos obrigat&oacute;rios com valores v&aacute;lidos. Quantidades devem ser inteiras e respeitar os limites dos campos.</p>
+    <p class="assumption" *ngIf="modo === 'salario'">Um v&iacute;nculo CLT. Vale-transporte sobre o sal&aacute;rio base, limitado ao custo informado. Outros descontos n&atilde;o reduzem a base do IRRF.</p>
+    <ng-container *ngIf="modo === 'rescisao'">
+      <p class="assumption">CLT por prazo indeterminado. Avos informados incluem a proje&ccedil;&atilde;o do aviso: cada m&ecirc;s com pelo menos 15 dias conta 1/12. F&eacute;rias integrais e em dobro s&atilde;o per&iacute;odos distintos.</p>
+      <p class="assumption" *ngIf="rescisao.controls.aviso.value === 'INDENIZADO' && rescisao.controls.motivo.value !== 'JUSTA_CAUSA'">
+        Aviso proporcional: {{ avisoDias }} dias{{ rescisao.controls.motivo.value === 'ACORDO' ? ', indenizacao pela metade no acordo' : '' }}.
+      </p>
+      <p class="assumption" *ngIf="rescisao.controls.motivo.value === 'JUSTA_CAUSA'">Justa causa: regra geral da CLT, sem 13&ordm; e f&eacute;rias proporcionais. Direitos reconhecidos por decis&atilde;o judicial ou norma coletiva podem alterar o resultado.</p>
+    </ng-container>
+    <p class="assumption" *ngIf="modo === 'ferias'">Recibo sem venda de dias (abono). O INSS &eacute; estimado isoladamente; outras verbas e f&eacute;rias em mais de uma compet&ecirc;ncia exigem ajuste na folha. O adiantamento do 13&ordm; n&atilde;o sofre desconto neste recibo.</p>
+    <p class="assumption" *ngIf="modo === 'investimentos'">Aportes ao fim de cada m&ecirc;s. Proje&ccedil;&atilde;o bruta, sem impostos, taxas ou infla&ccedil;&atilde;o.</p>
+  </section>
+
+  <aside class="simulation-result" aria-live="polite">
+    <h2>{{ tituloResultado }}</h2>
+    <ng-container *ngIf="resultado as r; else semResultado">
+      <strong class="net-total" [class.negative]="r.liquido < 0">{{ r.liquido | currency:'BRL' }}</strong>
+      <div class="distribution" *ngIf="r.bruto > 0 && modo !== 'investimentos'" aria-hidden="true">
+        <span [style.width.%]="100 - (r.totalDescontos / r.bruto * 100 > 100 ? 100 : r.totalDescontos / r.bruto * 100)"></span>
+      </div>
+      <h3>{{ modo === 'investimentos' ? 'Composicao' : 'Proventos' }}</h3>
+      <dl>
+        <div *ngFor="let p of r.proventos"><dt>{{ p.nome }}</dt><dd>{{ p.valor | currency:'BRL' }}</dd></div>
+        <div class="subtotal"><dt>Total bruto</dt><dd>{{ r.bruto | currency:'BRL' }}</dd></div>
+      </dl>
+      <ng-container *ngIf="modo !== 'investimentos'">
+        <h3>Descontos</h3>
+        <dl>
+          <div *ngFor="let p of r.descontos"><dt>{{ p.nome }}</dt><dd>{{ p.valor | currency:'BRL' }}</dd></div>
+          <div class="subtotal"><dt>Total de descontos</dt><dd class="negative">{{ r.totalDescontos | currency:'BRL' }}</dd></div>
+        </dl>
+        <p class="assumption">IRRF com a dedu&ccedil;&atilde;o mais favor&aacute;vel entre a legal e a simplificada e o redutor de 2026.</p>
+      </ng-container>
+      <div *ngIf="r.multaFgts !== undefined" class="fgts">
+        <span>Multa FGTS estimada, separada do l&iacute;quido</span><strong>{{ r.multaFgts | currency:'BRL' }}</strong>
+        <p>Base: saldo para fins rescis&oacute;rios informado. Saque e dep&oacute;sitos pendentes n&atilde;o est&atilde;o somados ao resultado.</p>
+      </div>
+    </ng-container>
+    <ng-template #semResultado>
+      <p class="empty">{{ form.invalid ? 'Resultado indisponivel: revise os valores.' : carregando ? 'Aguardando as tabelas oficiais...' : 'Resultado indisponivel sem as tabelas tributarias.' }}</p>
+    </ng-template>
+  </aside>
+</div>
+
+<footer *ngIf="modo !== 'investimentos'" class="simulation-sources">
+  <p>Estimativa para planejamento, n&atilde;o substitui o holerite ou o c&aacute;lculo do RH. Conven&ccedil;&otilde;es coletivas, pens&atilde;o judicial, m&uacute;ltiplos v&iacute;nculos e outras verbas n&atilde;o est&atilde;o contemplados.</p>
+  <a href="https://www.gov.br/inss/pt-br/direitos-e-deveres/inscricao-e-contribuicao/tabela-de-contribuicao-mensal" target="_blank" rel="noopener noreferrer">Fonte INSS <i class="pi pi-external-link" aria-hidden="true"></i></a>
+  <a href="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas/2026" target="_blank" rel="noopener noreferrer">Fonte IRRF <i class="pi pi-external-link" aria-hidden="true"></i></a>
+  <a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del5452compilado.htm" target="_blank" rel="noopener noreferrer">CLT <i class="pi pi-external-link" aria-hidden="true"></i></a>
+</footer>

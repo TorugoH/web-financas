@@ -1,0 +1,56 @@
+
+> web-financas@0.0.0 start
+> ng serve --host 127.0.0.1 --port 4200
+
+> Building...
+√ Building...
+Initial chunk files | Names                          |  Raw size
+styles.css          | styles                         | 761.43 kB | 
+polyfills.js        | polyfills                      |  90.20 kB | 
+main.js             | main                           |   3.80 kB | 
+chunk-VAWHYZDO.js   | -                              |   2.58 kB | 
+chunk-VUJOFXKG.js   | -                              | 938 bytes | 
+chunk-2AONYGWI.js   | -                              | 183 bytes | 
+
+                    | Initial total                  | 859.13 kB
+
+Lazy chunk files    | Names                          |  Raw size
+chunk-LPGYLHWP.js   | analise-page-component         | 170.48 kB | 
+chunk-CMJ52WJR.js   | despesa-page-component         |  35.13 kB | 
+chunk-NG7W4URH.js   | renda-page-component           |  34.55 kB | 
+chunk-L235475X.js   | -                              |  22.57 kB | 
+chunk-ZQG572WQ.js   | -                              |  22.17 kB | 
+chunk-RRJNOWBS.js   | cadastro-component             |   9.97 kB | 
+chunk-HM7NZWSO.js   | login-component                |   7.23 kB | 
+chunk-MTXSJ274.js   | perfil-component               |   3.04 kB | 
+chunk-NRA22VBU.js   | authenticated-layout-component |   1.57 kB | 
+
+Application bundle generation complete. [3.739 seconds]
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+Re-optimizing dependencies because vite config has changed
+  ➜  Local:   http://127.0.0.1:4200/
+  ➜  press h + enter to show help
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names                  |  Raw size
+main.js             | main                   |   3.80 kB | 
+
+Lazy chunk files    | Names                  |  Raw size
+chunk-SVJWP7X7.js   | analise-page-component | 170.63 kB | 
+
+Application bundle generation complete. [1.819 seconds]
+
+Page reload sent to client(s).
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names                  |  Raw size
+main.js             | main                   |   3.80 kB | 
+
+Lazy chunk files    | Names                  |  Raw size
+chunk-KKY7KXNT.js   | analise-page-component | 170.26 kB | 
+
+Application bundle generation complete. [0.333 seconds]
+
+Page reload sent to client(s).

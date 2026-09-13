@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/analise/analise-page/analise-page.component.scss"],
+  "sourcesContent": [".form-panel .recurrence-option {\n  align-items: center;\n  cursor: pointer;\n  display: flex;\n  gap: 10px;\n  grid-column: 1 / -1;\n  margin-bottom: 6px;\n}\n\n.form-panel .recurrence-option input {\n  accent-color: var(--app-accent);\n  flex: 0 0 18px;\n  height: 18px;\n  min-height: 18px;\n  padding: 0;\n  width: 18px;\n}\n\n.form-panel .recurrence-option span {\n  color: var(--app-text);\n  line-height: 1.5;\n}\n\n.recurrence-option small {\n  color: var(--app-muted);\n  display: block;\n}\n\n.inline-entry-form > label {\n  min-width: 0;\n}\n\n.recurring-entry-form {\n  grid-template-columns: 2fr repeat(4, minmax(0, 1fr)) auto;\n}\n\n@media (max-width: 1100px) {\n  .recurring-entry-form {\n    grid-template-columns: repeat(2, minmax(0, 1fr));\n  }\n}\n\n@media (max-width: 560px) {\n  .recurring-entry-form {\n    grid-template-columns: minmax(0, 1fr);\n  }\n}\n"],
+  "mappings": ";AAAA,CAAA,WAAA,CAAA;AACE,eAAA;AACA,UAAA;AACA,WAAA;AACA,OAAA;AACA,eAAA,CAAA,CAAA;AACA,iBAAA;;AAGF,CATA,WASA,CATA,kBASA;AACE,gBAAA,IAAA;AACA,QAAA,EAAA,EAAA;AACA,UAAA;AACA,cAAA;AACA,WAAA;AACA,SAAA;;AAGF,CAlBA,WAkBA,CAlBA,kBAkBA;AACE,SAAA,IAAA;AACA,eAAA;;AAGF,CAvBA,kBAuBA;AACE,SAAA,IAAA;AACA,WAAA;;AAGF,CAAA,kBAAA,EAAA;AACE,aAAA;;AAGF,CAAA;AACE,yBAAA,IAAA,OAAA,CAAA,EAAA,OAAA,CAAA,EAAA,MAAA;;AAGF,OAAA,CAAA,SAAA,EAAA;AACE,GALF;AAMI,2BAAA,OAAA,CAAA,EAAA,OAAA,CAAA,EAAA;;;AAIJ,OAAA,CAAA,SAAA,EAAA;AACE,GAXF;AAYI,2BAAA,OAAA,CAAA,EAAA;;;",
+  "names": []
+}

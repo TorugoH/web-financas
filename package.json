@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:simulacoes": "ng test --watch=false --browsers=ChromeHeadless --ts-config=tsconfig.simulacoes.spec.json --include=src/app/features/simulacoes/**/*.spec.ts --include=src/app/features/analise/analise-page/analise-page.component.spec.ts"
   },
   "private": true,
   "dependencies": {

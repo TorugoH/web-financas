@@ -13,6 +13,7 @@ import { DespesaService } from '../../../core/services/despesa.service';
 import { RendaService } from '../../../core/services/renda.service';
 import { DespesaFormDialogComponent } from '../../despesas/despesa-form-dialog/despesa-form-dialog.component';
 import { RendaFormDialogComponent } from '../../rendas/renda-form-dialog/renda-form-dialog.component';
+import { SimulacoesComponent } from '../../simulacoes/simulacoes.component';
 
 type DashboardTab = 'resumo' | 'rendas' | 'despesas' | 'investimentos' | 'simulacao' | 'lancamentos' | 'adicionar';
 type LancamentoTipo = 'DESPESA' | 'RENDA' | 'INVESTIMENTO';
@@ -64,16 +65,22 @@ interface InvestimentoChartPoint {
 }
 
 interface DespesaFormValue {
+  quantidadeMeses: FormControl<number | null>;
   descricao: FormControl<string>;
   valor: FormControl<number | null>;
   tipo: FormControl<DespesaTipo>;
+  recorrente: FormControl<boolean>;
+  diaPagamento: FormControl<number | null>;
   dataPagamento: FormControl<string>;
 }
 
 interface RendaFormValue {
+  quantidadeMeses: FormControl<number | null>;
   descricao: FormControl<string>;
   valor: FormControl<number | null>;
   tipo: FormControl<RendaTipo>;
+  recorrente: FormControl<boolean>;
+  diaRecebimento: FormControl<number | null>;
   dataRecebimento: FormControl<string>;
 }
 
@@ -85,17 +92,10 @@ interface InvestimentoFormValue {
   dataAplicacao: FormControl<string>;
 }
 
-interface SimulacaoFormValue {
-  valorInicial: FormControl<number | null>;
-  aporteMensal: FormControl<number | null>;
-  taxaAnual: FormControl<number | null>;
-  meses: FormControl<number | null>;
-}
-
 @Component({
   selector: 'app-analise-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarModule, RendaFormDialogComponent, DespesaFormDialogComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarModule, RendaFormDialogComponent, DespesaFormDialogComponent, SimulacoesComponent],
   templateUrl: './analise-page.component.html',
   styleUrl: './analise-page.component.scss'
 })
@@ -165,24 +165,23 @@ export class AnalisePageComponent implements OnInit {
   });
 
   readonly formDespesa = new FormGroup<DespesaFormValue>({
+    quantidadeMeses: new FormControl<number | null>({ value: null, disabled: true }, [Validators.required, Validators.min(1), Validators.max(120), Validators.pattern(/^\d+$/)]),
     descricao: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     valor: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
     tipo: new FormControl<DespesaTipo>('OUTRO', { nonNullable: true, validators: [Validators.required] }),
+    recorrente: new FormControl(false, { nonNullable: true }),
+    diaPagamento: new FormControl<number | null>({ value: this.today.getDate(), disabled: true }, [Validators.required, Validators.min(1), Validators.max(31), Validators.pattern(/^\d+$/)]),
     dataPagamento: new FormControl(this.toInputDate(this.today), { nonNullable: true, validators: [Validators.required] })
   });
 
   readonly formRenda = new FormGroup<RendaFormValue>({
+    quantidadeMeses: new FormControl<number | null>({ value: null, disabled: true }, [Validators.required, Validators.min(1), Validators.max(120), Validators.pattern(/^\d+$/)]),
     descricao: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     valor: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
     tipo: new FormControl<RendaTipo>('SALARIO', { nonNullable: true, validators: [Validators.required] }),
+    recorrente: new FormControl(false, { nonNullable: true }),
+    diaRecebimento: new FormControl<number | null>({ value: this.today.getDate(), disabled: true }, [Validators.required, Validators.min(1), Validators.max(31), Validators.pattern(/^\d+$/)]),
     dataRecebimento: new FormControl(this.toInputDate(this.today), { nonNullable: true, validators: [Validators.required] })
-  });
-
-  readonly formSimulacao = new FormGroup<SimulacaoFormValue>({
-    valorInicial: new FormControl<number | null>(1000, [Validators.required, Validators.min(0)]),
-    aporteMensal: new FormControl<number | null>(200, [Validators.required, Validators.min(0)]),
-    taxaAnual: new FormControl<number | null>(12, [Validators.required, Validators.min(0)]),
-    meses: new FormControl<number | null>(12, [Validators.required, Validators.min(1)])
   });
 
   constructor(
@@ -505,20 +504,6 @@ export class AnalisePageComponent implements OnInit {
     });
   }
 
-  get simulacaoResultado(): number {
-    const valorInicial = Number(this.formSimulacao.controls.valorInicial.value || 0);
-    const aporteMensal = Number(this.formSimulacao.controls.aporteMensal.value || 0);
-    const taxaMensal = Math.pow(1 + Number(this.formSimulacao.controls.taxaAnual.value || 0) / 100, 1 / 12) - 1;
-    const meses = Number(this.formSimulacao.controls.meses.value || 0);
-    let total = valorInicial;
-
-    for (let i = 0; i < meses; i++) {
-      total = total * (1 + taxaMensal) + aporteMensal;
-    }
-
-    return total;
-  }
-
   buscarDados(): void {
     this.carregando = true;
     this.errorMessage = '';
@@ -702,6 +687,32 @@ export class AnalisePageComponent implements OnInit {
       });
   }
 
+  atualizarRecorrenciaDespesa(): void {
+    const { recorrente, diaPagamento, dataPagamento, quantidadeMeses } = this.formDespesa.controls;
+    if (recorrente.value) {
+      quantidadeMeses.enable();
+      diaPagamento.enable();
+      dataPagamento.disable();
+    } else {
+      quantidadeMeses.disable();
+      diaPagamento.disable();
+      dataPagamento.enable();
+    }
+  }
+
+  atualizarRecorrenciaRenda(): void {
+    const { recorrente, diaRecebimento, dataRecebimento, quantidadeMeses } = this.formRenda.controls;
+    if (recorrente.value) {
+      quantidadeMeses.enable();
+      diaRecebimento.enable();
+      dataRecebimento.disable();
+    } else {
+      quantidadeMeses.disable();
+      diaRecebimento.disable();
+      dataRecebimento.enable();
+    }
+  }
+
   adicionarDespesa(): void {
     this.errorMessage = '';
     this.successMessage = '';
@@ -716,8 +727,10 @@ export class AnalisePageComponent implements OnInit {
       descricao: value.descricao.trim(),
       valor: value.valor ?? 0,
       tipo: value.tipo,
-      recorrente: false,
-      dataPagamento: value.dataPagamento
+      recorrente: value.recorrente,
+      ...(value.recorrente
+        ? { diaPagamento: value.diaPagamento!, quantidadeMeses: value.quantidadeMeses! }
+        : { dataPagamento: value.dataPagamento })
     };
 
     this.salvandoDespesa = true;
@@ -726,7 +739,8 @@ export class AnalisePageComponent implements OnInit {
       .pipe(finalize(() => (this.salvandoDespesa = false)))
       .subscribe({
         next: () => {
-          this.formDespesa.reset({ descricao: '', valor: null, tipo: 'OUTRO', dataPagamento: this.toInputDate(this.today) });
+          this.formDespesa.reset({ descricao: '', valor: null, tipo: 'OUTRO', recorrente: false, diaPagamento: this.today.getDate(), dataPagamento: this.toInputDate(this.today) });
+          this.atualizarRecorrenciaDespesa();
           this.successMessage = 'Despesa adicionada.';
           this.buscarDados();
         },
@@ -750,8 +764,10 @@ export class AnalisePageComponent implements OnInit {
       descricao: value.descricao.trim(),
       valor: value.valor ?? 0,
       tipo: value.tipo,
-      recorrente: false,
-      dataRecebimento: value.dataRecebimento
+      recorrente: value.recorrente,
+      ...(value.recorrente
+        ? { diaRecebimento: value.diaRecebimento!, quantidadeMeses: value.quantidadeMeses! }
+        : { dataRecebimento: value.dataRecebimento })
     };
 
     this.salvandoRenda = true;
@@ -760,7 +776,8 @@ export class AnalisePageComponent implements OnInit {
       .pipe(finalize(() => (this.salvandoRenda = false)))
       .subscribe({
         next: () => {
-          this.formRenda.reset({ descricao: '', valor: null, tipo: 'SALARIO', dataRecebimento: this.toInputDate(this.today) });
+          this.formRenda.reset({ descricao: '', valor: null, tipo: 'SALARIO', recorrente: false, diaRecebimento: this.today.getDate(), dataRecebimento: this.toInputDate(this.today) });
+          this.atualizarRecorrenciaRenda();
           this.successMessage = 'Renda adicionada.';
           this.buscarDados();
         },
