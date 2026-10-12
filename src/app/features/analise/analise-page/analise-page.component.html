@@ -386,7 +386,7 @@
         </div>
         <button type="button" class="icon-action" title="Editar taxa anual" [attr.aria-label]="'Editar taxa anual de ' + item.descricao" [disabled]="salvandoTaxaInvestimento" (click)="editarTaxaInvestimento(item)">
           <i class="pi pi-pencil" aria-hidden="true"></i>
-        </div>
+        </button>
       </div>
       <p class="empty-state" *ngIf="!investimentos.length">Nenhum investimento lan&ccedil;ado ainda</p>
     </article>
