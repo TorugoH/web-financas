@@ -48,4 +48,8 @@ export class RendaService {
     return this.http.patch<void>(`${this.baseUrl}/rendas/lancamentos/${id}/inativar`, {});
   }
 
+  atualizarTaxaInvestimento(idLancamento: number, taxaAnual: number): Observable<RendaResponse> {
+    return this.http.patch<RendaResponse>(`${this.baseUrl}/rendas/lancamentos/${idLancamento}/taxa-investimento`, { taxaAnual });
+  }
+
 }

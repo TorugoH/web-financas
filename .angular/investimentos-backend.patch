@@ -1,0 +1,103 @@
+*** Begin Patch
+*** Update File: C:/Users/KABUM/Documents/GitHub/api-financas/src/main/java/controle_financas/model/Renda.java
+@@
+     private BigDecimal valor;
++
++    @Column(name = "taxa_anual", precision = 12, scale = 6)
++    private BigDecimal taxaAnual;
+*** Update File: C:/Users/KABUM/Documents/GitHub/api-financas/src/main/java/controle_financas/record/RendaRequest.java
+@@
+-        Integer quantidadeMeses
++        Integer quantidadeMeses,
++        BigDecimal taxaAnual
+*** Update File: C:/Users/KABUM/Documents/GitHub/api-financas/src/main/java/controle_financas/record/RendaResponse.java
+@@
+-        Integer diaRecebimento
++        Integer diaRecebimento,
++        BigDecimal taxaAnual
+*** Update File: C:/Users/KABUM/Documents/GitHub/api-financas/src/main/java/controle_financas/record/RendaLancamentoResponse.java
+@@
+-        boolean recorrente
++        boolean recorrente,
++        BigDecimal taxaAnual
+*** Add File: C:/Users/KABUM/Documents/GitHub/api-financas/src/main/java/controle_financas/record/InvestimentoTaxaRequest.java
++package controle_financas.record;
++
++import java.math.BigDecimal;
++
++public record InvestimentoTaxaRequest(BigDecimal taxaAnual) {}
+*** Update File: C:/Users/KABUM/Documents/GitHub/api-financas/src/main/java/controle_financas/service/RendaService.java
+@@
+ import controle_financas.enuns.EscopoAtualizacao;
++import controle_financas.enuns.TipoRendaEnum;
+@@
+         Renda renda = rendaMapper.toEntity(request);
++        renda.setTaxaAnual(request.tipo() == TipoRendaEnum.INVESTIMENTO ? request.taxaAnual() : null);
+@@
+         renda.setTipo(request.tipo());
++        if (request.tipo() != TipoRendaEnum.INVESTIMENTO) {
++            renda.setTaxaAnual(null);
++        } else if (request.taxaAnual() != null) {
++            renda.setTaxaAnual(request.taxaAnual());
++        }
+@@
+-                        l.getRenda().isRecorrente()
++                        l.getRenda().isRecorrente(),
++                        l.getRenda().getTaxaAnual()
+@@
+     private void validarCampos(RendaRequest request) {
++        if (request.taxaAnual() != null) {
++            validarTaxaAnual(request.taxaAnual());
++        }
+@@
+     public RendaResponse atualizarValor(Long idLancamento, AtualizarValorRendaRequest request, String emailUsuario) {
+@@
+     }
++
++    @Transactional
++    public RendaResponse atualizarTaxaInvestimento(Long idLancamento, BigDecimal taxaAnual, String emailUsuario) {
++        validarTaxaAnual(taxaAnual);
++        RendaLancamento lancamento = lancamentoRepository.findById(idLancamento)
++                .orElseThrow(() -> new IllegalArgumentException("Investimento nao encontrado"));
++        Renda renda = lancamento.getRenda();
++        if (!renda.getUsuario().getEmail().equals(emailUsuario)) {
++            throw new IllegalArgumentException("Voce nao tem permissao para editar esse investimento");
++        }
++        if (renda.getTipo() != TipoRendaEnum.INVESTIMENTO) {
++            throw new IllegalArgumentException("Lancamento nao e um investimento");
++        }
++        renda.setTaxaAnual(taxaAnual);
++        return rendaMapper.toResponse(rendaRepository.save(renda));
++    }
++
++    private void validarTaxaAnual(BigDecimal taxa) {
++        if (taxa == null || taxa.signum() < 0 || taxa.compareTo(new BigDecimal("1000")) > 0
++                || taxa.stripTrailingZeros().scale() > 6) {
++            throw new IllegalArgumentException("Informe uma taxa anual de 0 a 1000, com ate 6 casas decimais");
++        }
++    }
+*** Update File: C:/Users/KABUM/Documents/GitHub/api-financas/src/main/java/controle_financas/controller/RendaController.java
+@@
+ import controle_financas.record.AtualizarValorRendaRequest;
++import controle_financas.record.InvestimentoTaxaRequest;
+@@
+     @PatchMapping("/lancamentos/{id}/inativar")
+@@
+     }
++
++    @PatchMapping("/lancamentos/{id}/taxa-investimento")
++    public ResponseEntity<RendaResponse> atualizarTaxaInvestimento(
++            @PathVariable Long id,
++            @RequestBody InvestimentoTaxaRequest request,
++            Authentication authentication
++    ) {
++        return ResponseEntity.ok(rendaService.atualizarTaxaInvestimento(id, request.taxaAnual(), authentication.getName()));
++    }
+*** Update File: C:/Users/KABUM/Documents/GitHub/api-financas/src/test/java/controle_financas/service/RecorrenciaServiceTest.java
+@@
+-        RendaRequest request = new RendaRequest("Salario", new BigDecimal("2600"), TipoRendaEnum.SALARIO, true, 31, null, meses);
++        RendaRequest request = new RendaRequest("Salario", new BigDecimal("2600"), TipoRendaEnum.SALARIO, true, 31, null, meses, null);
+@@
+-        RendaRequest request = new RendaRequest("Salario", BigDecimal.TEN, TipoRendaEnum.SALARIO, true, 5, null, meses);
++        RendaRequest request = new RendaRequest("Salario", BigDecimal.TEN, TipoRendaEnum.SALARIO, true, 5, null, meses, null);
+*** End Patch

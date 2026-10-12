@@ -54,3 +54,57 @@ chunk-KKY7KXNT.js   | analise-page-component | 170.26 kB |
 Application bundle generation complete. [0.333 seconds]
 
 Page reload sent to client(s).
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+
+No output file changes.
+
+Application bundle generation complete. [0.877 seconds]
+
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names                  |  Raw size
+main.js             | main                   |   3.80 kB | 
+
+Lazy chunk files    | Names                  |  Raw size
+chunk-5CNV22EZ.js   | analise-page-component | 170.26 kB | 
+chunk-MNTMRFQ3.js   | renda-page-component   |  34.55 kB | 
+chunk-D7THU7KU.js   | -                      |  22.35 kB | 
+
+Application bundle generation complete. [0.329 seconds]
+
+Page reload sent to client(s).
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Application bundle generation failed. [1.065 seconds]
+
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names                          |  Raw size
+styles.css          | styles                         | 761.43 kB | 
+polyfills.js        | polyfills                      |  90.20 kB | 
+main.js             | main                           |   3.80 kB | 
+chunk-VAWHYZDO.js   | -                              |   2.58 kB | 
+chunk-VUJOFXKG.js   | -                              | 938 bytes | 
+chunk-2AONYGWI.js   | -                              | 183 bytes | 
+
+                    | Initial total                  | 859.13 kB
+
+Lazy chunk files    | Names                          |  Raw size
+chunk-ATSUKXKB.js   | analise-page-component         | 171.01 kB | 
+chunk-CMJ52WJR.js   | despesa-page-component         |  35.13 kB | 
+chunk-MNTMRFQ3.js   | renda-page-component           |  34.55 kB | 
+chunk-L235475X.js   | -                              |  22.57 kB | 
+chunk-D7THU7KU.js   | -                              |  22.35 kB | 
+chunk-RRJNOWBS.js   | cadastro-component             |   9.97 kB | 
+chunk-HM7NZWSO.js   | login-component                |   7.23 kB | 
+chunk-MTXSJ274.js   | perfil-component               |   3.04 kB | 
+chunk-NRA22VBU.js   | authenticated-layout-component |   1.57 kB | 
+
+Application bundle generation complete. [0.795 seconds]
+
+Page reload sent to client(s).
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Application bundle generation failed. [0.341 seconds]
+

@@ -1,0 +1,60 @@
+X [ERROR] TS18047: 'investimento.taxaAnual' is possibly 'null'. [plugin angular-compiler]
+
+    src/app/features/analise/analise-page/analise-page.component.ts:813:53:
+      813 │ ...plicado * Math.pow(1 + investimento.taxaAnual / 100, dias / 365);
+          ╵                           ~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS18047: 'investimento.taxaAnual' is possibly 'null'. [plugin angular-compiler]
+
+    src/app/features/analise/analise-page/analise-page.component.ts:817:54:
+      817 │ ...ado * (Math.pow(1 + investimento.taxaAnual / 100, dias / 365) ...
+          ╵                        ~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2551: Property 'investimentosLocais' does not exist on type 'AnalisePageComponent'. Did you mean 'investimentos'? [plugin angular-compiler]
+
+    src/app/features/analise/analise-page/analise-page.component.ts:912:16:
+      912 │     return this.investimentosLocais.some(
+          ╵                 ~~~~~~~~~~~~~~~~~~~
+
+  'investimentos' is declared here.
+
+    src/app/features/analise/analise-page/analise-page.component.ts:261:6:
+      261 │   get investimentos(): Investimento[] {
+          ╵       ~~~~~~~~~~~~~
+
+
+X [ERROR] TS7006: Parameter 'item' implicitly has an 'any' type. [plugin angular-compiler]
+
+    src/app/features/analise/analise-page/analise-page.component.ts:913:7:
+      913 │       (item) =>
+          ╵        ~~~~
+
+
+X [ERROR] NG5002: Unexpected closing tag "div". It may happen when the tag has already been closed by another tag. For more info see https://www.w3.org/TR/html5/syntax.html#closing-elements-that-have-implied-end-tags [plugin angular-compiler]
+
+    src/app/features/analise/analise-page/analise-page.component.html:389:8:
+      389 │         </div>
+          ╵         ~~~~~~
+
+  Error occurs in the template of component AnalisePageComponent.
+
+    src/app/features/analise/analise-page/analise-page.component.ts:98:15:
+      98 │   templateUrl: './analise-page.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG5002: Unexpected closing tag "div". It may happen when the tag has already been closed by another tag. For more info see https://www.w3.org/TR/html5/syntax.html#closing-elements-that-have-implied-end-tags [plugin angular-compiler]
+
+    src/app/features/analise/analise-page/analise-page.component.html:390:6:
+      390 │       </div>
+          ╵       ~~~~~~
+
+  Error occurs in the template of component AnalisePageComponent.
+
+    src/app/features/analise/analise-page/analise-page.component.ts:98:15:
+      98 │   templateUrl: './analise-page.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+

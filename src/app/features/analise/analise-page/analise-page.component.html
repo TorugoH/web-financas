@@ -324,20 +324,20 @@
       </article>
       <article class="metric-card">
         <span>Valor atual</span>
-        <strong class="positive">{{ valorAtualInvestimentos | currency:'BRL' }}</strong>
+        <strong class="positive">{{ investimentoTemTaxaAusente ? 'Taxa pendente' : (valorAtualInvestimentos | currency:'BRL') }}</strong>
       </article>
       <article class="metric-card">
         <span>Rendimento/dia</span>
-        <strong class="primary">{{ rendimentoDia | currency:'BRL' }}</strong>
+        <strong class="primary">{{ investimentoTemTaxaAusente ? 'Taxa pendente' : (rendimentoDia | currency:'BRL') }}</strong>
       </article>
       <article class="metric-card">
         <span>Rendimento/m&ecirc;s</span>
-        <strong class="primary">{{ rendimentoMes | currency:'BRL' }}</strong>
+        <strong class="primary">{{ investimentoTemTaxaAusente ? 'Taxa pendente' : (rendimentoMes | currency:'BRL') }}</strong>
       </article>
     </div>
 
     <p class="empty-state investment-note" *ngIf="investimentoTemTaxaAusente">
-      Investimentos vindos da API n&atilde;o trazem taxa anual; por isso o rendimento fica zerado nesses itens.
+      H&aacute; investimentos sem taxa anual cadastrada. O valor atual e os rendimentos dependem dessa informa&ccedil;&atilde;o.
     </p>
 
     <article class="panel">
@@ -359,7 +359,8 @@
         </label>
         <label>
           <span>Taxa anual (%)</span>
-          <input type="number" formControlName="taxaAnual" min="0" step="0.01" placeholder="Ex: 12.5" />
+          <input type="number" formControlName="taxaAnual" min="0" max="1000" step="0.000001" placeholder="Ex: 12.5" />
+          <small class="field-error" *ngIf="formInvestimento.controls.taxaAnual.touched && formInvestimento.controls.taxaAnual.invalid">Informe de 0 a 1000%, com at&eacute; 6 casas decimais.</small>
         </label>
         <label>
           <span>Data aplica&ccedil;&atilde;o</span>
@@ -372,15 +373,19 @@
     </article>
 
     <article class="panel">
-      <h2>Meus investimentos ({{ investimentos.length }})</h2>
-      <div class="investment-row" *ngFor="let item of investimentos">
+      <h2>Meus investimentos ({{ investimentosFiltrados.length }})</h2>
+      <div class="investment-row" *ngFor="let item of investimentosFiltrados">
         <div>
           <strong>{{ item.descricao }}</strong>
           <span>{{ item.tipo }} &bull; {{ item.dataAplicacao | date:'dd/MM/yyyy':'UTC' }}</span>
+          <span>Taxa anual: {{ item.taxaAnual === null ? 'Nao informada' : (item.taxaAnual | number:'1.0-6') + '%' }}</span>
         </div>
         <div>
           <strong>{{ item.valorAplicado | currency:'BRL' }}</strong>
-          <span>Atual: {{ calcularValorAtual(item) | currency:'BRL' }}</span>
+          <span>Atual: {{ item.taxaAnual === null ? 'Taxa pendente' : (calcularValorAtual(item) | currency:'BRL') }}</span>
+        </div>
+        <button type="button" class="icon-action" title="Editar taxa anual" [attr.aria-label]="'Editar taxa anual de ' + item.descricao" [disabled]="salvandoTaxaInvestimento" (click)="editarTaxaInvestimento(item)">
+          <i class="pi pi-pencil" aria-hidden="true"></i>
         </div>
       </div>
       <p class="empty-state" *ngIf="!investimentos.length">Nenhum investimento lan&ccedil;ado ainda</p>

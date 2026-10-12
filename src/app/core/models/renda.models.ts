@@ -2,6 +2,7 @@ export type RendaTipo = 'SALARIO' | 'FREELANCE' | 'INVESTIMENTO' | 'OUTRO';
 export type RendaValorEscopo = 'APENAS_ESTE_MES' | 'ESTE_E_FUTUROS';
 
 export interface RendaRequest {
+  taxaAnual?: number;
   quantidadeMeses?: number;
   descricao: string;
   valor: number;
@@ -12,6 +13,7 @@ export interface RendaRequest {
 }
 
 export interface RendaResponse {
+  taxaAnual?: number | null;
   id: number;
   descricao: string;
   valor: number;
@@ -32,6 +34,7 @@ export interface RendaTotalResponse {
 }
 
 export interface RendaLancamento {
+  taxaAnual?: number | null;
   id: number;
   rendaId?: number;
   descricao: string;

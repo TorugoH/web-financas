@@ -47,13 +47,12 @@ interface ChartPoint {
 }
 
 interface Investimento {
-  id: string;
+  id: number;
   descricao: string;
   tipo: string;
   valorAplicado: number;
-  taxaAnual: number;
+  taxaAnual: number | null;
   dataAplicacao: string;
-  origem: 'api' | 'local';
 }
 
 interface InvestimentoChartPoint {
@@ -133,7 +132,10 @@ export class AnalisePageComponent implements OnInit {
   dados: DespesasXRenda[] = [];
   despesas: DespesaLancamento[] = [];
   rendas: RendaLancamento[] = [];
-  investimentosLocais: Investimento[] = [];
+  investimentoEmEdicao: number | null = null;
+  salvandoTaxaInvestimento = false;
+  erroTaxaInvestimento = '';
+  readonly taxaInvestimento = new FormControl<number | null>(null, [Validators.required, Validators.min(0), Validators.max(1000), Validators.pattern(/^\d+(\.\d{1,6})?$/)]);
   abaSelecionada: DashboardTab = 'resumo';
   carregando = false;
   salvandoDespesa = false;
@@ -160,7 +162,7 @@ export class AnalisePageComponent implements OnInit {
     descricao: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     tipo: new FormControl('CDB', { nonNullable: true, validators: [Validators.required] }),
     valorAplicado: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
-    taxaAnual: new FormControl<number | null>(null, [Validators.required, Validators.min(0)]),
+    taxaAnual: new FormControl<number | null>(null, [Validators.required, Validators.min(0), Validators.max(1000), Validators.pattern(/^\d+(\.\d{1,6})?$/)]),
     dataAplicacao: new FormControl(this.toInputDate(this.today), { nonNullable: true, validators: [Validators.required] })
   });
 
@@ -257,20 +259,16 @@ export class AnalisePageComponent implements OnInit {
   }
 
   get investimentos(): Investimento[] {
-    const investimentosApi = this.rendas
+    return this.rendas
       .filter((renda) => renda.tipo === 'INVESTIMENTO')
-      .filter((renda) => !this.hasLocalInvestmentMatch(renda))
       .map((renda) => ({
-        id: `api-${renda.id}`,
+        id: renda.id,
         descricao: renda.descricao,
         tipo: 'Investimento',
         valorAplicado: Number(renda.valor || 0),
-        taxaAnual: 0,
-        dataAplicacao: renda.dataPrevista,
-        origem: 'api' as const
-      }));
-
-    return [...investimentosApi, ...this.investimentosLocais].sort(
+        taxaAnual: renda.taxaAnual == null ? null : Number(renda.taxaAnual),
+        dataAplicacao: renda.dataPrevista
+      })).sort(
       (a, b) => this.toDate(a.dataAplicacao).getTime() - this.toDate(b.dataAplicacao).getTime()
     );
   }
@@ -457,7 +455,7 @@ export class AnalisePageComponent implements OnInit {
   }
 
   get investimentoTemTaxaAusente(): boolean {
-    return this.investimentosFiltrados.some((item) => item.taxaAnual === 0);
+    return this.investimentosFiltrados.some((item) => item.taxaAnual === null);
   }
 
   get despesasPorTipo(): Array<{ name: string; value: number; color: string }> {
@@ -646,22 +644,13 @@ export class AnalisePageComponent implements OnInit {
     }
 
     const value = this.formInvestimento.getRawValue();
-    const investimento: Investimento = {
-      id: `local-${Date.now()}`,
-      descricao: value.descricao.trim(),
-      tipo: value.tipo,
-      valorAplicado: Number(value.valorAplicado || 0),
-      taxaAnual: Number(value.taxaAnual || 0),
-      dataAplicacao: value.dataAplicacao,
-      origem: 'local'
-    };
-
     const payload: RendaRequest = {
-      descricao: `${investimento.tipo} - ${investimento.descricao}`,
-      valor: investimento.valorAplicado,
+      descricao: `${value.tipo} - ${value.descricao.trim()}`,
+      valor: Number(value.valorAplicado),
+      taxaAnual: Number(value.taxaAnual),
       tipo: 'INVESTIMENTO',
       recorrente: false,
-      dataRecebimento: investimento.dataAplicacao
+      dataRecebimento: value.dataAplicacao
     };
 
     this.salvandoInvestimento = true;
@@ -670,7 +659,6 @@ export class AnalisePageComponent implements OnInit {
       .pipe(finalize(() => (this.salvandoInvestimento = false)))
       .subscribe({
         next: () => {
-          this.investimentosLocais.push(investimento);
           this.formInvestimento.reset({
             descricao: '',
             tipo: 'CDB',
@@ -684,6 +672,37 @@ export class AnalisePageComponent implements OnInit {
         error: () => {
           this.errorMessage = 'Nao foi possivel adicionar o investimento.';
         }
+      });
+  }
+
+  editarTaxaInvestimento(item: Investimento): void {
+    this.investimentoEmEdicao = item.id;
+    this.taxaInvestimento.reset(item.taxaAnual);
+    this.erroTaxaInvestimento = '';
+  }
+
+  cancelarEdicaoTaxa(): void {
+    this.investimentoEmEdicao = null;
+    this.erroTaxaInvestimento = '';
+  }
+
+  salvarTaxaInvestimento(): void {
+    if (this.salvandoTaxaInvestimento || this.investimentoEmEdicao === null) return;
+    if (this.taxaInvestimento.invalid) {
+      this.taxaInvestimento.markAsTouched();
+      return;
+    }
+    this.salvandoTaxaInvestimento = true;
+    this.erroTaxaInvestimento = '';
+    this.rendaService.atualizarTaxaInvestimento(this.investimentoEmEdicao, this.taxaInvestimento.value!)
+      .pipe(finalize(() => this.salvandoTaxaInvestimento = false))
+      .subscribe({
+        next: () => {
+          this.cancelarEdicaoTaxa();
+          this.successMessage = 'Taxa anual salva.';
+          this.buscarDados();
+        },
+        error: () => this.erroTaxaInvestimento = 'Nao foi possivel salvar a taxa. Verifique se o backend esta atualizado.'
       });
   }
 
@@ -822,10 +841,11 @@ export class AnalisePageComponent implements OnInit {
 
   calcularValorAtual(investimento: Investimento): number {
     const dias = Math.max(this.daysBetween(investimento.dataAplicacao, this.toInputDate(this.today)), 0);
-    return investimento.valorAplicado * Math.pow(1 + investimento.taxaAnual / 100, dias / 365);
+    return investimento.valorAplicado * Math.pow(1 + (investimento.taxaAnual ?? 0) / 100, dias / 365);
   }
 
   private rendimentoPorPeriodo(investimento: Investimento, dias: number): number {
+    if (investimento.taxaAnual === null || this.toDate(investimento.dataAplicacao) > this.startOfDay(this.today)) return 0;
     return investimento.valorAplicado * (Math.pow(1 + investimento.taxaAnual / 100, dias / 365) - 1);
   }
 
@@ -918,15 +938,6 @@ export class AnalisePageComponent implements OnInit {
 
   private formatFullMonth(date: Date): string {
     return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase();
-  }
-
-  private hasLocalInvestmentMatch(renda: RendaLancamento): boolean {
-    return this.investimentosLocais.some(
-      (item) =>
-        item.dataAplicacao === renda.dataPrevista &&
-        Number(item.valorAplicado.toFixed(2)) === Number(Number(renda.valor || 0).toFixed(2)) &&
-        renda.descricao.includes(item.descricao)
-    );
   }
 
   private getRendaId(renda: RendaLancamento): number {
