@@ -387,7 +387,27 @@
         <button type="button" class="icon-action" title="Editar taxa anual" [attr.aria-label]="'Editar taxa anual de ' + item.descricao" [disabled]="salvandoTaxaInvestimento" (click)="editarTaxaInvestimento(item)">
           <i class="pi pi-pencil" aria-hidden="true"></i>
         </button>
+
+        <!-- Formulário de edição da taxa anual -->
+        <form *ngIf="investimentoEmEdicao === item.id" [formGroup]="taxaInvestimentoForm" (ngSubmit)="salvarTaxaInvestimento()" class="investment-edit-form">
+          <div>
+            <label><span>Taxa anual (%)</span>
+              <input type="number" formControlName="taxaAnual" placeholder="Ex: 10.5" step="0.000001" min="0" max="1000" />
+            </label>
+            <small class="field-error" *ngIf="taxaInvestimentoForm.get('taxaAnual')?.touched && taxaInvestimentoForm.get('taxaAnual')?.invalid">
+              <span *ngIf="taxaInvestimentoForm.get('taxaAnual')?.errors?.['required']">Informe a taxa anual.</span>
+              <span *ngIf="taxaInvestimentoForm.get('taxaAnual')?.errors?.['min']">A taxa deve ser maior ou igual a 0.</span>
+              <span *ngIf="taxaInvestimentoForm.get('taxaAnual')?.errors?.['max']">A taxa deve ser menor ou igual a 1000.</span>
+              <span *ngIf="taxaInvestimentoForm.get('taxaAnual')?.errors?.['pattern']">Informe uma taxa válida com até 6 casas decimais.</span>
+            </small>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="primary-button" [disabled]="salvandoTaxaInvestimento || taxaInvestimentoForm.get('taxaAnual')?.invalid">{{ salvandoTaxaInvestimento ? 'Salvando...' : 'Salvar' }}</button>
+            <button type="button" class="secondary-button" (click)="cancelarEdicaoTaxa()">Cancelar</button>
+          </div>
+        </form>
       </div>
+
       <p class="empty-state" *ngIf="!investimentos.length">Nenhum investimento lan&ccedil;ado ainda</p>
     </article>
   </section>

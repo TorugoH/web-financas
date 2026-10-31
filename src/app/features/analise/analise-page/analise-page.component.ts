@@ -136,6 +136,9 @@ export class AnalisePageComponent implements OnInit {
   salvandoTaxaInvestimento = false;
   erroTaxaInvestimento = '';
   readonly taxaInvestimento = new FormControl<number | null>(null, [Validators.required, Validators.min(0), Validators.max(1000), Validators.pattern(/^\d+(\.\d{1,6})?$/)]);
+  readonly taxaInvestimentoForm = new FormGroup({
+    taxaAnual: new FormControl<number | null>(null, [Validators.required, Validators.min(0), Validators.max(1000), Validators.pattern(/^\d+(\.\d{1,6})?$/)])
+  });
   abaSelecionada: DashboardTab = 'resumo';
   carregando = false;
   salvandoDespesa = false;
@@ -677,7 +680,7 @@ export class AnalisePageComponent implements OnInit {
 
   editarTaxaInvestimento(item: Investimento): void {
     this.investimentoEmEdicao = item.id;
-    this.taxaInvestimento.reset(item.taxaAnual);
+    this.taxaInvestimentoForm.patchValue({ taxaAnual: item.taxaAnual });
     this.erroTaxaInvestimento = '';
   }
 
@@ -688,13 +691,19 @@ export class AnalisePageComponent implements OnInit {
 
   salvarTaxaInvestimento(): void {
     if (this.salvandoTaxaInvestimento || this.investimentoEmEdicao === null) return;
-    if (this.taxaInvestimento.invalid) {
-      this.taxaInvestimento.markAsTouched();
+    if (this.taxaInvestimentoForm.invalid) {
+      this.taxaInvestimentoForm.markAsTouched();
       return;
     }
     this.salvandoTaxaInvestimento = true;
     this.erroTaxaInvestimento = '';
-    this.rendaService.atualizarTaxaInvestimento(this.investimentoEmEdicao, this.taxaInvestimento.value!)
+    const taxaAnualControl = this.taxaInvestimentoForm.get('taxaAnual');
+    if (!taxaAnualControl || taxaAnualControl.invalid) {
+      taxaAnualControl?.markAsTouched();
+      return;
+    }
+
+    this.rendaService.atualizarTaxaInvestimento(this.investimentoEmEdicao, taxaAnualControl.value!)
       .pipe(finalize(() => this.salvandoTaxaInvestimento = false))
       .subscribe({
         next: () => {
